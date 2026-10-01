@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Launch Decompression Calculator</title>
-<meta name="description" content="Zero-dimensional venting model for launch depressurization loads on spacecraft compartments inside the launcher fairing (Appendix A).">
+<meta name="description" content="Zero-dimensional venting model for launch depressurization loads on spacecraft compartments inside the launcher fairing (A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026).">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M9 29V13C9 7 13 3 16 2c3 1 7 5 7 11v16z' fill='%232a78d6'/%3E%3Crect x='12' y='17' width='8' height='7' rx='1.5' fill='%23fff'/%3E%3C/svg%3E">
 <style>
 :root{
@@ -54,7 +54,7 @@ sub,sup{font-size:.72em;line-height:0}
 i.v{font-family:"Times New Roman",Georgia,serif;font-style:italic;font-size:1.08em}
 
 /* top bar */
-.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:10px 20px;
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:14px;padding:10px 20px;
   background:color-mix(in srgb,var(--surface) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
 .brand svg{flex:none}
@@ -196,7 +196,7 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
     <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 29V13C9 7 13 3 16 2c3 1 7 5 7 11v16z" fill="var(--accent)"/><rect x="12" y="17" width="8" height="7" rx="1.5" fill="var(--surface)"/><path d="M14 17v-2M16 17v-3M18 17v-2" stroke="var(--surface)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div>
       <h1>Launch Decompression Calculator</h1>
-      <p>Zero-dimensional venting model of a compartment inside the launcher fairing · Appendix A</p>
+      <p>Zero-dimensional venting model of a compartment inside the launcher fairing · A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026</p>
     </div>
   </div>
   <div class="spacer"></div>
@@ -219,7 +219,7 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
         <button class="chip" data-example="3">UPM-Sat 1 · Case 3</button>
         <button class="chip" data-example="reset">Defaults</button>
       </div>
-      <div class="hint" style="margin-top:8px">Reference case of Appendix A.4.1 (Tables A.2–A.3), Ariane 4 / ASAP.</div>
+      <div class="hint" style="margin-top:8px">Reference case of Sec. A.4.1 (Tables A.2–A.3), Ariane 4 / ASAP — A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026.</div>
     </section>
 
     <section class="card sec">
@@ -387,6 +387,7 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
   <!-- ===================== RESULTS ===================== -->
   <main class="main" id="results">
     <div class="banner hidden" id="banner"></div>
+    <section class="card panel hidden" id="csvPanel"><div class="phead"><h3>Time history (CSV)</h3><button class="btn" id="btnCsvClose">Close</button></div><div class="hint" style="margin:0 0 6px">Copying to the clipboard was blocked. The text below is selected: press Ctrl/⌘+C to copy it.</div><textarea id="csvText" readonly spellcheck="false" style="height:160px"></textarea></section>
 
     <div class="kpis">
       <div class="card kpi hero">
@@ -426,7 +427,7 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
     </section>
 
     <section class="card panel">
-      <div class="phead"><h3>Detailed results</h3><span class="note">Equation numbers refer to Appendix A</span></div>
+      <div class="phead"><h3>Detailed results</h3><span class="note">Equation numbers refer to A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026</span></div>
       <div class="tablewrap"><table class="res" id="resTable"><thead><tr><th>Quantity</th><th>Symbol</th><th style="text-align:right">Value</th><th style="text-align:right">Ref.</th></tr></thead><tbody></tbody></table></div>
     </section>
 
@@ -442,12 +443,13 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
     </section>
   </main>
 </div>
-<div class="foot">Model: A. Pagani, E. Carrera, P. Chiaia — Appendix A “Carichi da decompressione nei compartimenti spaziali”; Á. Sanz-Andrés, J. Santiago-Prowald, A. Ayuso-Barea, J. Spacecraft &amp; Rockets 34(6):805–810, 1997; NASA SP-8060 “Compartment Venting”. Preliminary-design tool: verify flight hardware against launcher-specific data.</div>
+<div class="foot">Model: A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026; Á. Sanz-Andrés, J. Santiago-Prowald, A. Ayuso-Barea, J. Spacecraft &amp; Rockets 34(6):805–810, 1997; NASA SP-8060 “Compartment Venting”. Preliminary-design tool: verify flight hardware against launcher-specific data.</div>
 
 <script>
 'use strict';
 // ==== CORE BEGIN
-/* Gas-dynamic core: zero-dimensional venting model of Appendix A.
+/* Gas-dynamic core: zero-dimensional venting model of
+   A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026.
    All state is dimensionless: rho = rho0/rho_init, pe = pe/p_init, tau = t/tc. */
 const Core = (() => {
   // Critical pressure ratio, Eq. (A.19)
@@ -1109,6 +1111,7 @@ function saveHash() {
     if (el.type === 'radio') { if (el.checked) q.set(el.name, el.value); return; }
     if (el.value !== DEFAULTS[el.id]) q.set(el.id, el.value);
   });
+  if (window.DECOMP_EMBED === true) return;
   try { history.replaceState(null, '', '#' + q.toString()); } catch (e) { /* file:// in some browsers */ }
 }
 function loadHash() {
@@ -1124,18 +1127,31 @@ $('btnShare').addEventListener('click', async () => {
   catch (e) { prompt('Copy this link:', location.href); }
   setTimeout(() => b.querySelector('.lbl').textContent = old, 1500);
 });
+// EMBED: page shown inside a sandboxed viewer that blocks downloads, printing and URL-hash state
+const EMBED = window.DECOMP_EMBED === true;
+if (EMBED) {
+  $('btnShare').classList.add('hidden'); $('btnPrint').classList.add('hidden');
+  $('btnCsv').querySelector('.lbl').textContent = 'Copy CSV'; $('btnCsv').title = 'Copy the time history as CSV to the clipboard';
+}
+$('btnCsvClose').addEventListener('click', () => $('csvPanel').classList.add('hidden'));
 $('btnCsv').addEventListener('click', () => {
   if (!STATE) return;
   const { P, A, B } = STATE;
   const head = [
-    `# Launch decompression calculator - ${P.model === 'comp' ? 'compressible' : 'incompressible'} vent model (Appendix A)`,
+    `# Launch decompression calculator - ${P.model === 'comp' ? 'compressible' : 'incompressible'} vent model (A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026)`,
     `# V=${P.V} m3; S=${P.S} m2; xi=${P.xi}; gamma=${P.gamma}; R=${P.R}; T=${P.T} K; n=${P.n}; p_init=${P.pinit} Pa; t_p=${P.tp} s; t_c=${P.tc} s; K=${P.K}`,
     `# dp_max=${A.dp[A.iMax]} Pa at t=${A.t[A.iMax]} s`,
     't [s],p_e [Pa],p_0 [Pa],dp [Pa],r=pe/p0,mdot_out [kg/s],choked,dp_alt_model [Pa]'
   ];
   const lines = [];
   for (let i = 0; i < A.t.length; i++) lines.push([A.t[i], A.pe[i], A.p0[i], A.dp[i], A.r[i], A.md[i]].map(fmtCsv).join(',') + `,${A.choked[i]},${fmtCsv(B.dp[i])}`);
-  const blob = new Blob([head.concat(lines).join('\n')], { type: 'text/csv' });
+  const csv = head.concat(lines).join('\n');
+  if (EMBED) {
+    const lbl = $('btnCsv').querySelector('.lbl'), showText = () => { $('csvText').value = csv; $('csvPanel').classList.remove('hidden'); $('csvText').focus(); $('csvText').select(); };
+    try { navigator.clipboard.writeText(csv).then(() => { lbl.textContent = 'Copied'; setTimeout(() => lbl.textContent = 'Copy CSV', 1500); }, showText); } catch (e) { showText(); }
+    return;
+  }
+  const blob = new Blob([csv], { type: 'text/csv' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'decompression_history.csv';
   document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });

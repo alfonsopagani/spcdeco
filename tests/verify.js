@@ -1,4 +1,5 @@
-// Regression check of the solver embedded in index.html against Appendix A.4.1 (UPM-Sat 1).
+// Regression check of the solver embedded in index.html against Sec. A.4.1 (UPM-Sat 1) of
+// A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026.
 // Usage: node tests/verify.js
 const fs = require('fs');
 const path = require('path');
