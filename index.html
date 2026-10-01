@@ -341,7 +341,7 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
           <option value="comp">Pagani &amp; Carrera, AASS, 2016 — Eqs. (A.22)/(A.24)</option>
           <option value="incomp">Sanz-Andrés et al., JSR, 1997 — Eq. (A.52)</option>
         </select>
-        <div class="hint">Pagani &amp; Carrera: compressible orifice flow, choked or subcritical. Sanz-Andrés et al.: incompressible loss law, valid for small Δp. The other model is always computed too and shown dashed for comparison.</div>
+        <div class="hint">Both models treat the gas in the compartment as compressible; they differ in the vent flow law. Pagani &amp; Carrera: compressible orifice flow with choking. Sanz-Andrés et al.: incompressible orifice loss law, valid for small Δp. The other model is always computed too and shown dashed for comparison.</div>
       </div>
       <div class="row2">
         <div class="field">
@@ -423,7 +423,7 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
       <section class="card panel"><div class="phead"><h3>Pressure history</h3><span class="note">Compartment vs fairing</span></div><div id="cP" class="chart"></div></section>
       <section class="card panel"><div class="phead"><h3>Differential pressure Δp(t)</h3><span class="note" id="cDpNote">Positive = bursting</span></div><div id="cDp" class="chart"></div></section>
       <section class="card panel"><div class="phead"><h3>Gas density</h3><span class="note">Compartment ρ<sub>0</sub> vs fairing ρ<sub>e</sub></span></div><div id="cRho" class="chart"></div></section>
-      <section class="card panel"><div class="phead"><h3>Gas temperature</h3><span class="note">Polytropic law, Eq. (A.13)</span></div><div id="cT" class="chart"></div></section>
+      <section class="card panel"><div class="phead"><h3>Gas temperature</h3><span class="note">Implied by the polytropic law, Eq. (A.13)</span></div><div id="cT" class="chart"></div></section>
       <section class="card panel"><div class="phead"><h3>Sonic-phase check r = p<sub>e</sub>/p<sub>0</sub></h3><span class="note">Choked when r ≤ r<sub>cr</sub></span></div><div id="cR" class="chart"></div></section>
       <section class="card panel"><div class="phead"><h3>Design chart δ<sub>max</sub> vs K</h3><span class="note" id="cKNote">Gaussian profile, same n and γ</span></div><div id="cK" class="chart"></div></section>
     </div>
@@ -442,11 +442,11 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
       <div class="phead"><h3>Model assumptions</h3></div>
       <ul>
         <li>Zero-dimensional (lumped) compartment: uniform p, ρ, T; rigid walls (constant V); single equivalent vent to the fairing (Eqs. A.2–A.7).</li>
-        <li>Polytropic closure p/ρ<sup>n</sup> = const (Eq. A.9); n = γ is the usual, conservative choice for fast depressurization.</li>
+        <li>Polytropic closure p/ρ<sup>n</sup> = const (Eq. A.9), in both models. n = γ (isentropic) and n = 1 (isothermal) bound the real behaviour. The isothermal case gives the <em>higher</em> peak Δp (up to about 40 % more in the UPM-Sat 1 cases; Δp<sub>max</sub> ∝ 1/n when K ≪ 1), so check both, or use n = 1, for design.</li>
         <li>Fairing pressure is imposed: Gaussian law of Eq. (A.53), or the user table. Real profiles should come from the launcher user's manual.</li>
-        <li>Pagani &amp; Carrera, AASS, 2016 model: compressible isentropic orifice flow, choked or subcritical (Eqs. A.22/A.24), with S/√ξ as effective area. Valid at any pressure ratio. Reverse flow (p<sub>e</sub> &gt; p<sub>0</sub>) is handled with the fairing gas as upstream.</li>
-        <li>Sanz-Andrés et al., JSR, 1997 model: incompressible loss law Δp = ½ρ<sub>0</sub>U<sub>h</sub><sup>2</sup>ξ (Eqs. A.32–A.36), valid for small pressure differences. It has no sonic limit, so once the vents choke it overestimates the outflow and underestimates Δp. For small Δp it coincides with the compressible model.</li>
-        <li>Fairing gas density and temperature (plots only, and inflow in reverse flow) assume the same polytropic law as the compartment.</li>
+        <li>Pagani &amp; Carrera, AASS, 2016 model, compressible orifice flow with choking: quasi-steady isentropic flow through the vent, choked (sonic) or subcritical (Eqs. A.22/A.24), with S/√ξ as effective area. Valid at any pressure ratio. Reverse flow (p<sub>e</sub> &gt; p<sub>0</sub>) is handled with the fairing gas as upstream.</li>
+        <li>Sanz-Andrés et al., JSR, 1997 model, incompressible orifice loss law (small Δp): quadratic loss Δp = ½ρ<sub>0</sub>U<sub>h</sub><sup>2</sup>ξ with constant density across the vent (Eqs. A.32–A.36). Only the vent flow law is incompressible; the gas in the compartment still expands polytropically. Valid for small pressure differences. It has no sonic limit and can predict vent velocities above the speed of sound, so once the vents choke it overestimates the outflow and underestimates Δp. For small Δp it coincides with the compressible orifice model.</li>
+        <li><strong>Temperatures are not physical predictions.</strong> T<sub>0</sub> = T<sub>init</sub>·ρ̄<sup>n−1</sup> is what the polytropic hypothesis implies, not the result of an energy balance. With n = γ it is a reversible adiabatic expansion, the coldest the gas could get. In reality heat from the walls and equipment (large thermal mass, venting over tens of seconds), humidity, condensation or freezing, viscous losses and incomplete mixing keep the gas warmer, between the isentropic and isothermal values. The fairing curves are only an assumption: the fairing gas is taken to follow the same polytropic law, while its real temperature depends on the launcher (including heating through the fairing wall). This law is also used for the inflowing gas in reverse flow.</li>
         <li>Not modelled: outgassing, heat exchange beyond the polytropic law, acoustic/wave effects (valid only if the acoustic time ≪ t<sub>c</sub>), multiple interconnected compartments (Eq. A.14), and wall flexibility.</li>
       </ul>
     </section>
@@ -456,7 +456,7 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
   <div class="refs">
     <h4>References</h4>
     <ol>
-      <li>A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026.</li>
+      <li>A. Pagani, E. Carrera, P. Chiaia, <a href="https://alfonsopagani.github.io/svs/" target="_blank" rel="noopener">“Appunti di Strutture per Veicoli Spaziali”</a>, Politecnico di Torino, 2026.</li>
       <li>A. Pagani, E. Carrera, <a href="https://alfonsopagani.github.io/svs/papers/pagani_carrera_aas_2016.pdf" target="_blank" rel="noopener">“Gasdynamics of rapid and explosive decompressions of pressurized aircraft including active venting”</a>, Advances in Aircraft and Spacecraft Science, 3(1):77–93, 2016.</li>
       <li>Á. Sanz-Andrés, J. Santiago-Prowald, A. Ayuso-Barea, “Spacecraft Launch Depressurization Loads”, Journal of Spacecraft and Rockets, 34(6):805–810, 1997.</li>
       <li>NASA SP-8060, “Compartment Venting”, NASA Space Vehicle Design Criteria (Structures), 1970.</li>
