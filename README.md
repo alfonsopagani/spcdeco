@@ -1,6 +1,6 @@
 # spcdeco — Launch Decompression Calculator
 
-`index.html` is a self-contained interactive tool that estimates the **launch depressurization (decompression) loads** on a spacecraft compartment, equipment box or sandwich cavity inside the launcher fairing. It implements the zero-dimensional venting model of **A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026** (`svsbook_light.pdf`). Both models treat the gas in the compartment as compressible. They differ in the vent flow law: compressible orifice flow with choking (Pagani & Carrera, 2016), or the incompressible orifice loss law for small Δp (Sanz-Andrés *et al.*, 1997).
+`index.html` is a self-contained interactive tool that estimates the **launch depressurization (decompression) loads** on a spacecraft compartment, equipment box or sandwich cavity inside the launcher fairing. It implements the zero-dimensional venting model of **[A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026](https://alfonsopagani.github.io/svs/)**, Appendix A. Both models treat the gas in the compartment as compressible. They differ in the vent flow law: compressible orifice flow with choking (Pagani & Carrera, 2016), or the incompressible orifice loss law for small Δp (Sanz-Andrés *et al.*, 1997).
 
 During ascent the fairing pressure `pe(t)` drops from about 1 atm to vacuum in a minute or two. If the gas trapped in a compartment cannot escape through its vents fast enough, a differential pressure `Δp(t) = p0(t) − pe(t)` builds up on the walls. The tool gives you the **peak differential pressure Δp_max**, the time at which it occurs, the venting time scales, the sonic-flow phase, a structural margin and the vent area needed to meet an allowable load.
 
@@ -8,11 +8,11 @@ During ascent the fairing pressure `pe(t)` drops from about 1 atm to vacuum in a
 
 ## 1. Getting started
 
-1. Download or clone the repository.
+1. Download or clone the repository, or open the shared online version (see section 4.5 for its differences).
 2. Open **`index.html`** in any modern browser (Chrome, Edge, Firefox or Safari). You don't need a server, an installation or an internet connection.
 3. Pick a launcher, enter the compartment volume and the vent area. The results update as you type.
 
-To try the reference case from the book, click **UPM-Sat 1 · Case 1/2/3** in the *Examples* card.
+To try the reference case from the [book](https://alfonsopagani.github.io/svs/), click **UPM-Sat 1 · Case 1/2/3** in the *Examples* card.
 
 ---
 
@@ -20,13 +20,15 @@ To try the reference case from the book, click **UPM-Sat 1 · Case 1/2/3** in th
 
 | Area | Content |
 |---|---|
-| **Top bar** | *Copy link* (a URL that reproduces the current inputs), *Export CSV* (the full time history), *Report* (print or save as PDF), light/dark theme toggle. |
-| **Left column: inputs** | Five numbered sections (launcher, compartment, venting, model, structural check), plus example presets. |
+| **Top bar** | *Copy link* (a URL that reproduces the current inputs), *Export CSV* (the full time history), *Report* (print or save as PDF), light/dark theme toggle. The online version shows *Copy CSV* instead and hides *Copy link* and *Report* (section 4.5). |
+| **Left column: inputs** | Five numbered sections (launcher, compartment, venting, model, structural check), plus the *Examples* card with the UPM-Sat 1 presets. The card cites the source of the case: A. Pagani et al., PoliTO, 2026; Á. Sanz-Andrés et al., JSR, 1997. |
 | **KPI row** | Δp_max (hero figure, with a unit selector: Pa, kPa, mbar, psi), venting time `tc`, time ratio `K` with a venting-regime badge, start of the sonic phase, and the design load or margin of safety. |
 | **Ascent snapshot** | A schematic of the fairing and compartment at a selected instant. The fill intensity shows the pressure, and the arrows show the vent mass flow; they turn amber and a **SONIC** tag appears when the vents are choked. The bars show `pe`, `p0`, `Δp` and the mass flow. Use **▶** to animate the ascent, or drag the slider. |
 | **Charts** | Pressure history · Δp(t) · gas density · gas temperature · sonic-phase check `r = pe/p0` · design chart `δ_max` vs `K`. Hover any chart for a crosshair read-out. Click a time chart to move the snapshot to that instant. |
 | **Vent sizing** | The minimum vent area, and the matching number of holes, that keeps the load within the allowable. Shown only after you set an allowable Δp. |
-| **Detailed results** | Every computed quantity, with its symbol and the equation number in A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026. |
+| **Detailed results** | Every computed quantity, with its symbol and the equation number in [A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026](https://alfonsopagani.github.io/svs/). |
+| **Model assumptions** | The hypotheses behind both vent flow models, their range of validity, the effect of the polytropic exponent `n`, and why the computed temperatures are not physical predictions. |
+| **Footer** | Numbered references (with links to the book and to the Pagani & Carrera paper), copyright and a link to the source code. |
 
 If an input is invalid, the field is outlined in red and a message appears above the results. The last valid results stay on screen until you correct it.
 
@@ -117,7 +119,7 @@ If Δp never exceeds the allowable within the window, even with almost no ventin
 
 ### 4.4 Detailed results table
 
-The table groups every quantity with its symbol and the equation number in A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026:
+The table groups every quantity with its symbol and the equation number in [A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026](https://alfonsopagani.github.io/svs/):
 
 - **Fairing:** `tp`, `p_init`, maximum depressurization rate and the time at which it occurs.
 - **Compartment:** ρ_init, initial gas mass, a_init, n.
@@ -132,11 +134,18 @@ The table groups every quantity with its symbol and the equation number in A. Pa
 - **Copy link** puts all inputs in the URL after the `#`. Opening that link restores the same case, which is useful for design reviews.
 - **Report** opens the browser's print dialog. Choose *Save as PDF* to archive the inputs, charts and tables.
 
+**Online (shared) version.** When the page runs inside a sandboxed web viewer, such as the shared claude.ai page, the browser does not allow downloads, printing or state in the URL. There:
+
+- **Copy CSV** replaces *Export CSV*: it copies the same CSV text to the clipboard. If the clipboard is blocked, the CSV appears in a panel above the results, already selected, ready for Ctrl/⌘+C.
+- *Report* and *Copy link* are hidden. To archive a case, open `index.html` locally.
+
+The calculations are identical in both versions.
+
 ---
 
 ## 5. Worked example: UPM-Sat 1 (Sec. A.4.1)
 
-This is the example of Sec. A.4.1 in A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026. Click **UPM-Sat 1 · Case 1/2/3**. The presets load the data of Table A.2: V = 0.13 m³, a_init = 335 m/s, γ = 1.4, ξ = 1, tp = 75 s (Ariane 40), p_init = 100 kPa, isentropic, window 0 ≤ t ≤ 225 s.
+This is the example of Sec. A.4.1 in [A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026](https://alfonsopagani.github.io/svs/). Click **UPM-Sat 1 · Case 1/2/3**. The presets load the data of Table A.2: V = 0.13 m³, a_init = 335 m/s, γ = 1.4, ξ = 1, tp = 75 s (Ariane 40), p_init = 100 kPa, isentropic, window 0 ≤ t ≤ 225 s.
 
 | Case | S [m²] | tc [s] (Tab. A.3) | K | Δp_max, Pagani & Carrera | Δp_max, Sanz-Andrés et al. (A.52) | Sonic start (book, Tab. A.4) |
 |---|---|---|---|---|---|---|
@@ -189,7 +198,7 @@ In dimensionless form the Pagani & Carrera model becomes `dρ̄/dτ = −√(γ/
 
 ## 7. Limitations
 
-The model is intended for preliminary design and sensitivity studies (A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026, introduction). It assumes:
+The model is intended for preliminary design and sensitivity studies ([A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026](https://alfonsopagani.github.io/svs/), Appendix A, introduction). It assumes:
 
 - a single compartment with uniform properties: no internal pressure waves, stratification or jets. This requires the acoustic transit time to be much shorter than `tc`;
 - rigid walls and constant volume;
@@ -201,7 +210,7 @@ The model is intended for preliminary design and sensitivity studies (A. Pagani 
 
 ## 8. References
 
-1. A. Pagani, E. Carrera, P. Chiaia, ["Appunti di Strutture per Veicoli Spaziali"](https://alfonsopagani.github.io/svs/), Politecnico di Torino, 2026 (`svsbook_light.pdf`).
+1. A. Pagani, E. Carrera, P. Chiaia, ["Appunti di Strutture per Veicoli Spaziali"](https://alfonsopagani.github.io/svs/), Politecnico di Torino, 2026. Appendix A, *Carichi da decompressione nei compartimenti spaziali*.
 2. A. Pagani, E. Carrera, ["Gasdynamics of rapid and explosive decompressions of pressurized aircraft including active venting"](https://alfonsopagani.github.io/svs/papers/pagani_carrera_aas_2016.pdf), *Advances in Aircraft and Spacecraft Science*, 3(1):77–93, 2016.
 3. Á. Sanz-Andrés, J. Santiago-Prowald, A. Ayuso-Barea, "Spacecraft Launch Depressurization Loads", *Journal of Spacecraft and Rockets*, 34(6):805–810, 1997.
 4. NASA SP-8060, *Compartment Venting*, NASA Space Vehicle Design Criteria (Structures), 1970.
@@ -214,7 +223,7 @@ The model is intended for preliminary design and sensitivity studies (A. Pagani 
 |---|---|
 | `index.html` | The calculator: a single file with no external dependencies. |
 | `tests/verify.js` | Regression check of the embedded solver against the UPM-Sat 1 case. |
-| `svsbook_light.pdf` | The textbook: A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026, starting on page 323. |
+| `README.md` | This user manual. |
 | `LICENSE` | License. |
 
 ---
