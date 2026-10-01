@@ -1,0 +1,1155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launch Decompression Calculator</title>
+<meta name="description" content="Zero-dimensional venting model for launch depressurization loads on spacecraft compartments inside the launcher fairing (Appendix A).">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M9 29V13C9 7 13 3 16 2c3 1 7 5 7 11v16z' fill='%232a78d6'/%3E%3Crect x='12' y='17' width='8' height='7' rx='1.5' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+:root{
+  color-scheme: light;
+  --page:#f4f3ef; --surface:#fcfcfb; --surface-2:#f3f2ee; --surface-3:#e9e7e1;
+  --border:rgba(11,11,11,.10); --border-strong:rgba(11,11,11,.20);
+  --text:#0b0b0b; --text-2:#52514e; --text-3:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7;
+  --accent:#2a78d6; --accent-ink:#1c5cab; --accent-wash:rgba(42,120,214,.10);
+  --s-int:#2a78d6; --s-fair:#eb6834; --s-alt:#4a3aa7;
+  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+  --good-ink:#006300; --warn-ink:#8a5a00; --crit-ink:#b42323;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.04);
+  --radius:14px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --surface-2:#222220; --surface-3:#2c2c2a;
+    --border:rgba(255,255,255,.10); --border-strong:rgba(255,255,255,.20);
+    --text:#ffffff; --text-2:#c3c2b7; --text-3:#898781;
+    --grid:#2c2c2a; --axis:#383835;
+    --accent:#3987e5; --accent-ink:#86b6ef; --accent-wash:rgba(57,135,229,.16);
+    --s-int:#3987e5; --s-fair:#d95926; --s-alt:#9085e9;
+    --good-ink:#0ca30c; --warn-ink:#fab219; --crit-ink:#e66767;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --page:#0d0d0d; --surface:#1a1a19; --surface-2:#222220; --surface-3:#2c2c2a;
+  --border:rgba(255,255,255,.10); --border-strong:rgba(255,255,255,.20);
+  --text:#ffffff; --text-2:#c3c2b7; --text-3:#898781;
+  --grid:#2c2c2a; --axis:#383835;
+  --accent:#3987e5; --accent-ink:#86b6ef; --accent-wash:rgba(57,135,229,.16);
+  --s-int:#3987e5; --s-fair:#d95926; --s-alt:#9085e9;
+  --good-ink:#0ca30c; --warn-ink:#fab219; --crit-ink:#e66767;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page);color:var(--text);font:14px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+sub,sup{font-size:.72em;line-height:0}
+i.v{font-family:"Times New Roman",Georgia,serif;font-style:italic;font-size:1.08em}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:10px 20px;
+  background:color-mix(in srgb,var(--surface) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand svg{flex:none}
+.brand h1{font-size:16px;margin:0;font-weight:650;letter-spacing:-.01em;white-space:nowrap}
+.brand p{margin:0;font-size:12px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spacer{flex:1}
+.btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--border-strong);
+  background:var(--surface);cursor:pointer;font-size:13px;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:transparent;color:#fff}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.icon{width:32px;padding:0;justify-content:center}
+.btn svg{width:16px;height:16px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+
+/* layout */
+.layout{display:grid;grid-template-columns:minmax(300px,370px) minmax(0,1fr);gap:20px;padding:20px;max-width:1520px;margin:0 auto}
+@media (max-width:980px){.layout{grid-template-columns:minmax(0,1fr);padding:16px}.brand p{display:none}.toolbar .lbl{display:none}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.side{display:flex;flex-direction:column;gap:14px}
+.main{display:flex;flex-direction:column;gap:18px;min-width:0}
+
+/* input sections */
+.sec{padding:14px 16px 16px}
+.sec h2{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:12px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2)}
+.sec h2 .num{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;background:var(--accent-wash);color:var(--accent-ink);font-size:11px;letter-spacing:0}
+.field{margin-bottom:11px}
+.field:last-child{margin-bottom:0}
+.field label,.flabel{display:block;font-size:12.5px;color:var(--text-2);margin-bottom:4px}
+.ctl{display:flex;gap:6px}
+.ctl input,.ctl select,select.full,textarea{flex:1;min-width:0;height:34px;padding:0 10px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);outline:none}
+.ctl select.unit{flex:none;width:auto;min-width:66px;padding:0 6px;background:var(--surface-2)}
+select.full{width:100%}
+textarea{width:100%;height:110px;padding:8px 10px;font-family:var(--mono);font-size:12px;resize:vertical}
+.ctl input:focus,.ctl select:focus,select.full:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}
+input.bad{border-color:var(--crit)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--crit) 18%,transparent)!important}
+input[readonly]{background:var(--surface-2);color:var(--text-2)}
+.hint{font-size:11.5px;color:var(--text-3);margin-top:4px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.row2>*,.row3>*{min-width:0}
+.ctl input{width:100%}
+.seg{display:flex;padding:3px;border-radius:9px;background:var(--surface-2);border:1px solid var(--border);margin-bottom:12px}
+.seg label{flex:1;text-align:center;padding:6px 8px;border-radius:7px;font-size:12.5px;color:var(--text-2);cursor:pointer;margin:0}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg input:checked+span{color:var(--text)}
+.seg label:has(input:checked){background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);color:var(--text)}
+.seg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.derived{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--text-2);background:var(--surface-2);border-radius:8px;padding:7px 10px;margin-top:8px}
+.derived b{font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--border-strong);background:var(--surface);border-radius:999px;padding:4px 11px;font-size:12px;cursor:pointer}
+.chip:hover{background:var(--accent-wash);border-color:var(--accent)}
+.hidden{display:none!important}
+
+/* banner */
+.banner{padding:10px 14px;border-radius:10px;border:1px solid color-mix(in srgb,var(--crit) 40%,transparent);background:color-mix(in srgb,var(--crit) 8%,var(--surface));color:var(--crit-ink);font-size:13px}
+
+/* KPI row */
+.kpis{display:grid;grid-template-columns:minmax(260px,1.5fr) repeat(4,minmax(140px,1fr));gap:12px}
+@media (max-width:1280px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi.hero{grid-column:1/-1}}
+.kpi{padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi .lab{font-size:12px;color:var(--text-2)}
+.kpi .val{font-size:24px;font-weight:620;letter-spacing:-.01em;white-space:nowrap}
+.kpi .val small{font-size:14px;font-weight:500;color:var(--text-2);margin-left:3px}
+.kpi .sub{font-size:12px;color:var(--text-3)}
+.kpi.hero .val{font-size:44px;line-height:1.05}
+.kpi.hero .val small{font-size:18px}
+.unitsel{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2)}
+.unitsel select{height:26px;border-radius:6px;border:1px solid var(--border-strong);background:var(--surface);padding:0 4px;font-size:12px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:3px 10px 3px 8px;border-radius:999px;width:max-content;max-width:100%}
+.badge svg{width:14px;height:14px;flex:none}
+.badge.good{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good-ink)}
+.badge.warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn-ink)}
+.badge.crit{background:color-mix(in srgb,var(--crit) 14%,transparent);color:var(--crit-ink)}
+
+/* panels */
+.panel{padding:14px 16px 16px;min-width:0}
+.phead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.phead h3{margin:0;font-size:14px;font-weight:620}
+.phead .note{font-size:12px;color:var(--text-3)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:1180px){.grid2{grid-template-columns:minmax(0,1fr)}}
+
+/* schematic */
+.scheme{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.scheme svg{width:100%;height:auto;display:block}
+.scrub{display:flex;align-items:center;gap:10px}
+.scrub input[type=range]{flex:1;accent-color:var(--accent)}
+.scrub .tlabel{font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--text-2);min-width:118px;text-align:right}
+
+/* charts */
+.chart{position:relative;width:100%;touch-action:pan-y}
+.chart svg{display:block;width:100%;overflow:visible}
+.chart text{font-family:var(--sans)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--text-2);margin-bottom:6px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend svg{width:20px;height:8px}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--border-strong);border-radius:8px;padding:7px 9px;font-size:12px;
+  box-shadow:0 4px 14px rgba(0,0,0,.12);white-space:nowrap;z-index:5;opacity:0;transition:opacity .08s}
+.tip .th{color:var(--text-2);margin-bottom:3px;font-variant-numeric:tabular-nums}
+.tip .tr{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.tip .tr i{display:inline-block;width:10px;height:3px;border-radius:2px}
+.tip .tr b{font-weight:600;margin-left:auto;padding-left:12px}
+
+/* table */
+table.res{width:100%;border-collapse:collapse;font-size:13px}
+table.res th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);text-align:left;font-weight:600;padding:8px 10px;border-bottom:1px solid var(--border)}
+table.res td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+table.res tr.grp td{background:var(--surface-2);font-weight:620;font-size:12px;color:var(--text-2);letter-spacing:.02em}
+table.res td.val{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:550}
+table.res td.ref{color:var(--text-3);white-space:nowrap;font-size:12px;text-align:right}
+table.res td.sym{white-space:nowrap;color:var(--text-2)}
+.tablewrap{overflow-x:auto}
+@media (max-width:600px){table.res td.sym,table.res th:nth-child(2){display:none}table.res td.val{white-space:normal}}
+.notes{font-size:12.5px;color:var(--text-2)}
+.notes ul{margin:6px 0 0;padding-left:18px}
+.notes li{margin:3px 0}
+.sizing{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.sizing{grid-template-columns:minmax(0,1fr)}.kpis{grid-template-columns:minmax(0,1fr)}}
+.sizing .box{background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.sizing .box .lab{font-size:12px;color:var(--text-2)}
+.sizing .box .val{font-size:18px;font-weight:620;margin-top:2px;font-variant-numeric:tabular-nums}
+.foot{max-width:1520px;margin:0 auto;padding:0 20px 28px;font-size:12px;color:var(--text-3)}
+
+@media print{
+  .topbar .toolbar,.scrub button,.presets,.unitsel{display:none!important}
+  .topbar{position:static;backdrop-filter:none}
+  body{background:#fff}
+  .layout{grid-template-columns:1fr;padding:0}
+  .card{box-shadow:none;break-inside:avoid}
+  .grid2{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 29V13C9 7 13 3 16 2c3 1 7 5 7 11v16z" fill="var(--accent)"/><rect x="12" y="17" width="8" height="7" rx="1.5" fill="var(--surface)"/><path d="M14 17v-2M16 17v-3M18 17v-2" stroke="var(--surface)" stroke-width="1.2" stroke-linecap="round"/></svg>
+    <div>
+      <h1>Launch Decompression Calculator</h1>
+      <p>Zero-dimensional venting model of a compartment inside the launcher fairing · Appendix A</p>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="toolbar">
+    <button class="btn" id="btnShare" title="Copy a link that reproduces the current inputs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg><span class="lbl">Copy link</span></button>
+    <button class="btn" id="btnCsv" title="Download the time history as CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 19h16"/></svg><span class="lbl">Export CSV</span></button>
+    <button class="btn" id="btnPrint" title="Print or save a PDF report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z"/></svg><span class="lbl">Report</span></button>
+    <button class="btn icon" id="btnTheme" title="Toggle light / dark theme" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- ===================== INPUTS ===================== -->
+  <aside class="side" id="inputs">
+    <section class="card sec">
+      <h2>Examples</h2>
+      <div class="presets">
+        <button class="chip" data-example="1">UPM-Sat 1 · Case 1</button>
+        <button class="chip" data-example="2">UPM-Sat 1 · Case 2</button>
+        <button class="chip" data-example="3">UPM-Sat 1 · Case 3</button>
+        <button class="chip" data-example="reset">Defaults</button>
+      </div>
+      <div class="hint" style="margin-top:8px">Reference case of Appendix A.4.1 (Tables A.2–A.3), Ariane 4 / ASAP.</div>
+    </section>
+
+    <section class="card sec">
+      <h2><span class="num">1</span>Launcher &amp; fairing pressure</h2>
+      <div class="field">
+        <label for="launcher">Launcher / fairing profile</label>
+        <select id="launcher" class="full" data-p>
+          <optgroup label="ESA Launch Vehicle Catalogue (Table A.1)">
+            <option value="ariane40">Ariane 40 · t_p = 75 s</option>
+            <option value="ariane42p">Ariane 42P · t_p = 73 s</option>
+            <option value="ariane44p">Ariane 44P · t_p = 53 s</option>
+            <option value="delta3920max">Delta 3920, max · t_p = 57 s</option>
+            <option value="delta3920min">Delta 3920, min · t_p = 44 s</option>
+            <option value="cz2e">CZ-2E · t_p = 58 s</option>
+          </optgroup>
+          <optgroup label="User-defined">
+            <option value="custom">Custom characteristic time t_p</option>
+            <option value="rate">From max. depressurization rate</option>
+            <option value="table">Tabulated fairing pressure p_e(t)</option>
+          </optgroup>
+        </select>
+        <div class="hint" id="launcherHint">Gaussian law p̄<sub>e</sub> = exp[−(t/t<sub>p</sub>)²], Eq. (A.53).</div>
+      </div>
+      <div class="field hidden" id="fTp">
+        <label for="tp">Characteristic time <i class="v">t</i><sub>p</sub> [s]</label>
+        <div class="ctl"><input id="tp" type="text" inputmode="decimal" value="75" data-p></div>
+      </div>
+      <div class="field hidden" id="fRate">
+        <label for="rate">Max. fairing depressurization rate |d<i class="v">p</i><sub>e</sub>/d<i class="v">t</i>|<sub>max</sub> [kPa/s]</label>
+        <div class="ctl"><input id="rate" type="text" inputmode="decimal" value="2.0" data-p></div>
+        <div class="hint">Value from the launcher user's manual. Converted to an equivalent Gaussian t<sub>p</sub> = √2·e<sup>−1/2</sup>·p<sub>init</sub> / rate.</div>
+      </div>
+      <div class="field hidden" id="fTable">
+        <label for="table">Fairing pressure table — one row per point: <span style="font-family:var(--mono)">t [s], p [kPa]</span></label>
+        <textarea id="table" spellcheck="false" data-p>0, 101.3
+20, 97.0
+40, 82.0
+60, 58.0
+80, 33.0
+100, 15.0
+120, 6.0
+140, 2.0
+160, 0.6
+200, 0.1</textarea>
+        <div class="hint">Linear interpolation; the first row sets p<sub>init</sub>. Separators: comma, semicolon, tab or space.</div>
+      </div>
+      <div class="field" id="fPinit">
+        <label for="pinit">Initial pressure <i class="v">p</i><sub>init</sub> [kPa]</label>
+        <div class="ctl"><input id="pinit" type="text" inputmode="decimal" value="101.325" data-p></div>
+        <div class="hint">Fairing and compartment pressure at lift-off (equalized).</div>
+      </div>
+      <div class="derived" id="dTp"><span>Fairing t<sub>p</sub></span><b id="oTp">–</b></div>
+    </section>
+
+    <section class="card sec">
+      <h2><span class="num">2</span>Compartment &amp; gas</h2>
+      <div class="field">
+        <label for="V">Effective internal volume <i class="v">V</i></label>
+        <div class="ctl"><input id="V" type="text" inputmode="decimal" value="0.13" data-p>
+          <select id="Vu" class="unit" data-p><option value="1">m³</option><option value="0.001">L</option><option value="1e-6">cm³</option></select></div>
+      </div>
+      <div class="field">
+        <label for="gas">Gas</label>
+        <select id="gas" class="full" data-p>
+          <option value="air">Air (γ = 1.4, R = 287.05 J/kg·K)</option>
+          <option value="n2">Nitrogen (γ = 1.4, R = 296.8 J/kg·K)</option>
+          <option value="he">Helium (γ = 1.667, R = 2077 J/kg·K)</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="row3">
+        <div class="field"><label for="gamma">γ</label><div class="ctl"><input id="gamma" type="text" inputmode="decimal" value="1.4" data-p></div></div>
+        <div class="field"><label for="R">R [J/kg·K]</label><div class="ctl"><input id="R" type="text" inputmode="decimal" value="287.05" data-p></div></div>
+        <div class="field"><label for="T">T<sub>init</sub> [K]</label><div class="ctl"><input id="T" type="text" inputmode="decimal" value="288.15" data-p></div></div>
+      </div>
+      <div class="derived"><span>Speed of sound a<sub>init</sub> = √(γRT), Eq. (A.39)</span><b id="oA">–</b></div>
+    </section>
+
+    <section class="card sec">
+      <h2><span class="num">3</span>Venting</h2>
+      <div class="seg" role="radiogroup" aria-label="Vent definition">
+        <label><input type="radio" name="vmode" value="area" checked data-p><span>Effective area</span></label>
+        <label><input type="radio" name="vmode" value="holes" data-p><span>Vent holes</span></label>
+      </div>
+      <div id="fArea">
+        <div class="field">
+          <label for="S">Total vent section <i class="v">S</i></label>
+          <div class="ctl"><input id="S" type="text" inputmode="decimal" value="2.4e-5" data-p>
+            <select id="Su" class="unit" data-p><option value="1">m²</option><option value="1e-4">cm²</option><option value="1e-6">mm²</option></select></div>
+          <div class="hint">Sum over all vents. Scientific notation accepted (e.g. 24e-6).</div>
+        </div>
+        <div class="field">
+          <label for="xi">Loss coefficient <i class="v">ξ</i></label>
+          <div class="ctl"><input id="xi" type="text" inputmode="decimal" value="1" data-p></div>
+          <div class="hint">ξ = 1 when S is already an effective area C<sub>D</sub>·A (Eq. A.31). Use ξ ≈ 1/C<sub>D</sub>² with a geometric area (Eq. A.33) — never both.</div>
+        </div>
+      </div>
+      <div id="fHoles" class="hidden">
+        <div class="row3">
+          <div class="field"><label for="nh">Number N</label><div class="ctl"><input id="nh" type="text" inputmode="decimal" value="4" data-p></div></div>
+          <div class="field"><label for="dh">Diameter [mm]</label><div class="ctl"><input id="dh" type="text" inputmode="decimal" value="3" data-p></div></div>
+          <div class="field"><label for="cd">C<sub>D</sub></label><div class="ctl"><input id="cd" type="text" inputmode="decimal" value="0.6" data-p></div></div>
+        </div>
+        <div class="hint">S = N·C<sub>D</sub>·πd²/4 (Eq. A.16), with ξ = 1. Sharp-edged orifices: C<sub>D</sub> ≈ 0.6.</div>
+      </div>
+      <div class="derived"><span>Effective vent area S</span><b id="oS">–</b></div>
+    </section>
+
+    <section class="card sec">
+      <h2><span class="num">4</span>Model &amp; solver</h2>
+      <div class="field">
+        <label for="model">Vent flow model</label>
+        <select id="model" class="full" data-p>
+          <option value="comp">Compressible orifice — Eqs. (A.22)/(A.24)</option>
+          <option value="incomp">Incompressible orifice — Eq. (A.52)</option>
+        </select>
+        <div class="hint">The other model is always computed too and shown dashed for comparison.</div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="nmode">Thermodynamics</label>
+          <select id="nmode" class="full" data-p>
+            <option value="isen">Isentropic, n = γ</option>
+            <option value="iso">Isothermal, n = 1</option>
+            <option value="custom">Polytropic, custom n</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="n">Exponent n (Eq. A.9)</label>
+          <div class="ctl"><input id="n" type="text" inputmode="decimal" value="1.4" data-p></div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="tend">End time [s]</label>
+          <div class="ctl"><input id="tend" type="text" inputmode="decimal" value="" placeholder="auto" data-p></div>
+          <div class="hint">Blank → 3·t<sub>p</sub> (Eq. A.59).</div>
+        </div>
+        <div class="field">
+          <label for="nsteps">Time steps</label>
+          <div class="ctl"><input id="nsteps" type="text" inputmode="decimal" value="4000" data-p></div>
+          <div class="hint">Implicit BDF2.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card sec">
+      <h2><span class="num">5</span>Structural check &amp; vent sizing</h2>
+      <div class="row2">
+        <div class="field"><label for="allow">Allowable Δp [kPa]</label><div class="ctl"><input id="allow" type="text" inputmode="decimal" value="" placeholder="optional" data-p></div></div>
+        <div class="field"><label for="fs">Design factor FS</label><div class="ctl"><input id="fs" type="text" inputmode="decimal" value="1.0" data-p></div></div>
+      </div>
+      <div class="field">
+        <label for="aw">Loaded wall area A<sub>w</sub> [m²]</label>
+        <div class="ctl"><input id="aw" type="text" inputmode="decimal" value="" placeholder="optional" data-p></div>
+        <div class="hint">Gives the resultant force on a panel, F = FS·Δp<sub>max</sub>·A<sub>w</sub>.</div>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="dsz">Sizing hole Ø [mm]</label><div class="ctl"><input id="dsz" type="text" inputmode="decimal" value="3" data-p></div></div>
+        <div class="field"><label for="cdsz">Sizing C<sub>D</sub></label><div class="ctl"><input id="cdsz" type="text" inputmode="decimal" value="0.6" data-p></div></div>
+      </div>
+    </section>
+  </aside>
+
+  <!-- ===================== RESULTS ===================== -->
+  <main class="main" id="results">
+    <div class="banner hidden" id="banner"></div>
+
+    <div class="kpis">
+      <div class="card kpi hero">
+        <div class="phead" style="margin:0"><span class="lab">Peak differential pressure Δp<sub>max</sub> (A.30)</span>
+          <label class="unitsel">Unit <select id="punit" data-p><option value="1">Pa</option><option value="1e3" selected>kPa</option><option value="100">mbar</option><option value="6894.757">psi</option></select></label></div>
+        <div class="val" id="kDp">–</div>
+        <div class="sub" id="kDpSub">–</div>
+      </div>
+      <div class="card kpi"><span class="lab">Venting time t<sub>c</sub> (A.43)</span><span class="val" id="kTc">–</span><span class="sub" id="kTcSub">–</span></div>
+      <div class="card kpi"><span class="lab">Time ratio K = t<sub>c</sub>/t<sub>p</sub> (A.54)</span><span class="val" id="kK">–</span><span id="kKBadge"></span></div>
+      <div class="card kpi"><span class="lab">Sonic (choked) phase (A.61)</span><span class="val" id="kSon">–</span><span class="sub" id="kSonSub">–</span></div>
+      <div class="card kpi"><span class="lab" id="kMosLab">Design load FS·Δp<sub>max</sub></span><span class="val" id="kMos">–</span><span id="kMosSub" class="sub">–</span></div>
+    </div>
+
+    <section class="card panel">
+      <div class="phead"><h3>Ascent snapshot</h3><span class="note">Drag the slider or click on any time chart</span></div>
+      <div class="scheme">
+        <svg id="scheme" viewBox="0 0 640 270" role="img" aria-label="Schematic of the fairing and compartment state at the selected time"></svg>
+        <div class="scrub">
+          <button class="btn icon" id="btnPlay" title="Play / pause" aria-label="Play"><svg viewBox="0 0 24 24" fill="currentColor" id="playIco"><path d="M8 5v14l11-7z"/></svg></button>
+          <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Time">
+          <span class="tlabel" id="tlabel">t = 0 s</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid2">
+      <section class="card panel"><div class="phead"><h3>Pressure history</h3><span class="note">Compartment vs fairing</span></div><div id="cP" class="chart"></div></section>
+      <section class="card panel"><div class="phead"><h3>Differential pressure Δp(t)</h3><span class="note" id="cDpNote">Positive = bursting</span></div><div id="cDp" class="chart"></div></section>
+      <section class="card panel"><div class="phead"><h3>Sonic-phase check r = p<sub>e</sub>/p<sub>0</sub></h3><span class="note">Choked when r ≤ r<sub>cr</sub></span></div><div id="cR" class="chart"></div></section>
+      <section class="card panel"><div class="phead"><h3>Design chart δ<sub>max</sub> vs K</h3><span class="note" id="cKNote">Gaussian profile, same n and γ</span></div><div id="cK" class="chart"></div></section>
+    </div>
+
+    <section class="card panel" id="sizingCard">
+      <div class="phead"><h3>Vent sizing</h3><span class="note" id="sizingNote">Set an allowable Δp in section 5</span></div>
+      <div class="sizing" id="sizingBody"></div>
+    </section>
+
+    <section class="card panel">
+      <div class="phead"><h3>Detailed results</h3><span class="note">Equation numbers refer to Appendix A</span></div>
+      <div class="tablewrap"><table class="res" id="resTable"><thead><tr><th>Quantity</th><th>Symbol</th><th style="text-align:right">Value</th><th style="text-align:right">Ref.</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <section class="card panel notes">
+      <div class="phead"><h3>Model assumptions</h3></div>
+      <ul>
+        <li>Zero-dimensional (lumped) compartment: uniform p, ρ, T; rigid walls (constant V); single equivalent vent to the fairing (Eqs. A.2–A.7).</li>
+        <li>Polytropic closure p/ρ<sup>n</sup> = const (Eq. A.9); n = γ is the usual, conservative choice for fast depressurization.</li>
+        <li>Fairing pressure is imposed: Gaussian law of Eq. (A.53), or the user table. Real profiles should come from the launcher user's manual.</li>
+        <li>Compressible model: choked/subcritical orifice flow (Eqs. A.22/A.24) with S/√ξ as effective area; its small-Δp limit is exactly Eq. (A.52). Reverse flow (p<sub>e</sub> &gt; p<sub>0</sub>) is handled with the fairing gas as upstream.</li>
+        <li>Not modelled: outgassing, heat exchange beyond the polytropic law, acoustic/wave effects (valid only if the acoustic time ≪ t<sub>c</sub>), multiple interconnected compartments (Eq. A.14), and wall flexibility.</li>
+      </ul>
+    </section>
+  </main>
+</div>
+<div class="foot">Model: A. Pagani, E. Carrera, P. Chiaia — Appendix A “Carichi da decompressione nei compartimenti spaziali”; Á. Sanz-Andrés, J. Santiago-Prowald, A. Ayuso-Barea, J. Spacecraft &amp; Rockets 34(6):805–810, 1997; NASA SP-8060 “Compartment Venting”. Preliminary-design tool: verify flight hardware against launcher-specific data.</div>
+
+<script>
+'use strict';
+// ==== CORE BEGIN
+/* Gas-dynamic core: zero-dimensional venting model of Appendix A.
+   All state is dimensionless: rho = rho0/rho_init, pe = pe/p_init, tau = t/tc. */
+const Core = (() => {
+  // Critical pressure ratio, Eq. (A.19)
+  const rcrit = g => Math.pow(2 / (g + 1), g / (g - 1));
+
+  // Orifice flow function: mdot = S * pu * sqrt(g / (R Tu)) * psi(pd/pu), Eqs. (A.22)/(A.24)
+  function psi(r, g) {
+    if (r <= rcrit(g)) return Math.pow(2 / (g + 1), (g + 1) / (2 * (g - 1)));
+    if (r >= 1) return 0;
+    return Math.sqrt(2 / (g - 1) * (Math.pow(r, 2 / g) - Math.pow(r, (g + 1) / g)));
+  }
+
+  // Characteristic venting time, Eq. (A.43)
+  const ventTime = (V, S, a, g, xi) => V / (S * a) * Math.sqrt(g * xi / 2);
+
+  // d(rho)/d(tau). 'incomp' = Eq. (A.52) (signed for reverse flow); 'comp' = Eqs. (A.22)/(A.24)
+  function rhs(model, rho, pe, n, g) {
+    const p0 = Math.pow(rho, n), d = p0 - pe;
+    if (model === 'incomp') return d >= 0 ? -Math.sqrt(rho * d) : Math.sqrt(pe * -d);
+    const c = Math.sqrt(g / 2);
+    if (d >= 0) return p0 > 0 ? -c * Math.pow(rho, (n + 1) / 2) * psi(pe / p0, g) : 0;
+    const Te = Math.pow(pe, (n - 1) / n);           // fairing gas temperature ratio
+    return c * pe / Math.sqrt(Te) * psi(p0 / pe, g);
+  }
+
+  // Root of an increasing scalar function (bracketing + Illinois regula falsi)
+  function solveMono(fn, x0) {
+    let lo = x0, hi = x0, flo = fn(x0), fhi = flo;
+    if (flo === 0) return x0;
+    let step = Math.max(1e-9, Math.abs(x0) * 1e-3), it = 0;
+    if (flo > 0) {
+      while (flo > 0 && lo > 0 && it++ < 200) { hi = lo; fhi = flo; lo = Math.max(0, lo - step); flo = fn(lo); step *= 2; }
+      if (flo > 0) return lo;
+    } else {
+      while (fhi < 0 && it++ < 200) { lo = hi; flo = fhi; hi += step; fhi = fn(hi); step *= 2; }
+    }
+    for (let k = 0; k < 120; k++) {
+      let x = (lo * fhi - hi * flo) / (fhi - flo);
+      if (!(x > lo && x < hi)) x = 0.5 * (lo + hi);
+      const fx = fn(x);
+      if (fx === 0 || hi - lo < 1e-15 * Math.max(1, x)) return x;
+      if (fx > 0) { hi = x; fhi = fx; flo *= 0.5; } else { lo = x; flo = fx; fhi *= 0.5; }
+    }
+    return 0.5 * (lo + hi);
+  }
+
+  /* Time integration with BDF2 (L-stable): robust when tc << tp (stiff, quasi-static venting).
+     peFun(t) -> pe_bar, tc [s], tEnd [s]. Returns dimensionless histories. */
+  function simulate({ model, n, g, tc, peFun, tEnd, N = 4000 }) {
+    const dt = tEnd / N, dtau = dt / tc;
+    const t = new Float64Array(N + 1), rho = new Float64Array(N + 1), pe = new Float64Array(N + 1);
+    rho[0] = 1; pe[0] = peFun(0);
+    for (let k = 0; k < N; k++) {
+      const t1 = (k + 1) * dt, pe1 = peFun(t1);
+      const gfun = k === 0
+        ? x => x - rho[0] - dtau * rhs(model, x, pe1, n, g)
+        : x => x - (4 / 3) * rho[k] + (1 / 3) * rho[k - 1] - (2 / 3) * dtau * rhs(model, x, pe1, n, g);
+      t[k + 1] = t1; pe[k + 1] = pe1;
+      rho[k + 1] = Math.max(0, solveMono(gfun, rho[k]));
+    }
+    return { t, rho, pe };
+  }
+
+  // Peak dimensionless jump delta_max (Eq. A.46) of a run
+  function deltaMax(run, n) {
+    let m = -Infinity;
+    for (let i = 0; i < run.t.length; i++) m = Math.max(m, Math.pow(run.rho[i], n) - run.pe[i]);
+    return m;
+  }
+
+  const gauss = tp => t => Math.exp(-((t / tp) * (t / tp)));            // Eq. (A.53)
+  const GAUSS_RATE = Math.SQRT2 * Math.exp(-0.5);                        // max |d pe_bar / d(t/tp)|
+
+  return { rcrit, psi, ventTime, rhs, simulate, deltaMax, gauss, GAUSS_RATE };
+})();
+// ==== CORE END
+
+/* ======================= Application ======================= */
+const $ = id => document.getElementById(id);
+const LAUNCHERS = {
+  ariane40: { name: 'Ariane 40', tp: 75 }, ariane42p: { name: 'Ariane 42P', tp: 73 },
+  ariane44p: { name: 'Ariane 44P', tp: 53 }, delta3920max: { name: 'Delta 3920 (max)', tp: 57 },
+  delta3920min: { name: 'Delta 3920 (min)', tp: 44 }, cz2e: { name: 'CZ-2E', tp: 58 }
+};
+const GASES = { air: [1.4, 287.05], n2: [1.4, 296.8], he: [1.667, 2077] };
+const DEFAULTS = {};
+document.querySelectorAll('[data-p]').forEach(el => { DEFAULTS[el.id || el.name] = el.type === 'radio' ? (document.querySelector(`[name="${el.name}"]:checked`).value) : el.value; });
+
+/* ---------- formatting ---------- */
+const SUP = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+function fmt(x, sig = 4) {
+  if (x === null || x === undefined || !isFinite(x)) return '–';
+  if (x === 0) return '0';
+  const a = Math.abs(x);
+  if (a < 1e-3 || a >= 1e6) {
+    const [m, e] = x.toExponential(sig - 1).split('e');
+    return `${m} × 10${String(+e).split('').map(c => SUP[c] || c).join('')}`;
+  }
+  let s = x.toPrecision(sig);
+  if (s.includes('e')) s = String(+s);
+  if (s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '');
+  return Number(s).toLocaleString('en-US', { maximumFractionDigits: 10 });
+}
+const fmtCsv = x => (isFinite(x) ? +x.toPrecision(8) : '');
+function punit() { const s = $('punit'); return { k: +s.value, u: s.options[s.selectedIndex].text }; }
+function fP(pa, sig = 4) { const u = punit(); return `${fmt(pa / u.k, sig)} ${u.u}`; }
+function fPh(pa, sig = 4) { const u = punit(); return `${fmt(pa / u.k, sig)}<small>${u.u}</small>`; }
+function fT(s) { return isFinite(s) ? `${fmt(s, 4)} s` : '–'; }
+
+/* ---------- inputs ---------- */
+function num(id, { min = -Infinity, gt = null, optional = false, int = false } = {}) {
+  const el = $(id), raw = el.value.trim().replace(',', '.');
+  el.classList.remove('bad');
+  if (raw === '' && optional) return null;
+  const v = Number(raw);
+  const ok = raw !== '' && isFinite(v) && v >= min && (gt === null || v > gt) && (!int || Number.isInteger(v));
+  if (!ok) { el.classList.add('bad'); throw new Error(`Invalid value for “${el.closest('.field')?.querySelector('label')?.textContent.trim() || id}”.`); }
+  return v;
+}
+function parseTable(txt) {
+  const pts = [];
+  txt.split(/\r?\n/).forEach((line, i) => {
+    const l = line.trim();
+    if (!l || l.startsWith('#')) return;
+    const parts = l.split(/[\s,;]+/).filter(Boolean).map(Number);
+    if (parts.length < 2 || !parts.slice(0, 2).every(isFinite)) throw new Error(`Fairing table: cannot read line ${i + 1} (“${l}”).`);
+    pts.push([parts[0], parts[1] * 1e3]);
+  });
+  pts.sort((a, b) => a[0] - b[0]);
+  if (pts.length < 2) throw new Error('Fairing table: at least two points are required.');
+  if (pts.some(p => p[1] < 0)) throw new Error('Fairing table: pressures must be non-negative.');
+  if (pts[0][1] <= 0) throw new Error('Fairing table: the first pressure must be positive.');
+  return pts;
+}
+
+function readInputs() {
+  const P = {};
+  P.launcher = $('launcher').value;
+  P.vmode = document.querySelector('[name="vmode"]:checked').value;
+  P.model = $('model').value;
+  P.gamma = num('gamma', { gt: 1 });
+  P.R = num('R', { gt: 0 });
+  P.T = num('T', { gt: 0 });
+  const nm = $('nmode').value;
+  P.n = nm === 'isen' ? P.gamma : nm === 'iso' ? 1 : num('n', { min: 1 });
+  P.V = num('V', { gt: 0 }) * +$('Vu').value;
+  if (P.vmode === 'area') {
+    P.S = num('S', { gt: 0 }) * +$('Su').value;
+    P.xi = num('xi', { gt: 0 });
+  } else {
+    const N = num('nh', { gt: 0 }), d = num('dh', { gt: 0 }) * 1e-3, cd = num('cd', { gt: 0 });
+    if (cd > 1) { $('cd').classList.add('bad'); throw new Error('C_D must satisfy 0 < C_D ≤ 1 (Eq. A.17).'); }
+    P.S = N * cd * Math.PI * d * d / 4; P.xi = 1;
+  }
+  // Fairing profile
+  if (P.launcher === 'table') {
+    const pts = parseTable($('table').value);
+    P.pinit = pts[0][1];
+    const t0 = pts[0][0];
+    const ts = pts.map(p => p[0] - t0), ps = pts.map(p => p[1] / P.pinit);
+    P.peFun = t => {
+      if (t <= 0) return ps[0];
+      if (t >= ts[ts.length - 1]) return ps[ps.length - 1];
+      let lo = 0, hi = ts.length - 1;
+      while (hi - lo > 1) { const m = (lo + hi) >> 1; if (ts[m] <= t) lo = m; else hi = m; }
+      const w = (t - ts[lo]) / (ts[hi] - ts[lo] || 1);
+      return ps[lo] + w * (ps[hi] - ps[lo]);
+    };
+    let rmax = 0, trm = 0;
+    for (let i = 1; i < ts.length; i++) {
+      const r = -(ps[i] - ps[i - 1]) * P.pinit / (ts[i] - ts[i - 1] || Infinity);
+      if (r > rmax) { rmax = r; trm = 0.5 * (ts[i] + ts[i - 1]); }
+    }
+    P.maxRate = rmax; P.tMaxRate = trm;
+    P.tp = rmax > 0 ? Core.GAUSS_RATE * P.pinit / rmax : NaN;   // equivalent Gaussian time
+    P.tpEquivalent = true;
+    P.tEndAuto = ts[ts.length - 1];
+    P.table = pts;
+  } else {
+    P.pinit = num('pinit', { gt: 0 }) * 1e3;
+    if (LAUNCHERS[P.launcher]) P.tp = LAUNCHERS[P.launcher].tp;
+    else if (P.launcher === 'custom') P.tp = num('tp', { gt: 0 });
+    else P.tp = Core.GAUSS_RATE * P.pinit / (num('rate', { gt: 0 }) * 1e3);
+    P.tpEquivalent = P.launcher === 'rate';
+    P.peFun = Core.gauss(P.tp);
+    P.maxRate = Core.GAUSS_RATE * P.pinit / P.tp; P.tMaxRate = P.tp / Math.SQRT2;
+    P.tEndAuto = 3 * P.tp;
+  }
+  if (!(P.tEndAuto > 0)) throw new Error('Cannot determine the simulation time window.');
+  const te = num('tend', { gt: 0, optional: true });
+  P.tEnd = te === null ? P.tEndAuto : te;
+  P.N = Math.min(50000, Math.max(200, Math.round(num('nsteps', { gt: 0 }))));
+  P.allow = num('allow', { gt: 0, optional: true });
+  P.allow = P.allow === null ? null : P.allow * 1e3;
+  P.fs = num('fs', { gt: 0 });
+  P.aw = num('aw', { gt: 0, optional: true });
+  P.dsz = num('dsz', { gt: 0 }) * 1e-3;
+  P.cdsz = num('cdsz', { gt: 0 });
+  P.a = Math.sqrt(P.gamma * P.R * P.T);
+  P.rhoInit = P.pinit / (P.R * P.T);
+  P.tc = Core.ventTime(P.V, P.S, P.a, P.gamma, P.xi);
+  P.K = P.tc / P.tp;
+  return P;
+}
+
+/* ---------- computation ---------- */
+function analyse(P, model) {
+  const run = Core.simulate({ model, n: P.n, g: P.gamma, tc: P.tc, peFun: P.peFun, tEnd: P.tEnd, N: P.N });
+  const M = run.t.length, rc = Core.rcrit(P.gamma);
+  const p0 = new Float64Array(M), pe = new Float64Array(M), dp = new Float64Array(M), r = new Float64Array(M), md = new Float64Array(M);
+  const choked = new Uint8Array(M);
+  let iMax = 0, iMin = 0;
+  for (let i = 0; i < M; i++) {
+    const pb = Math.pow(run.rho[i], P.n);
+    p0[i] = pb * P.pinit; pe[i] = run.pe[i] * P.pinit; dp[i] = p0[i] - pe[i];
+    r[i] = p0[i] > 0 ? pe[i] / p0[i] : 1;
+    md[i] = -P.V * P.rhoInit * Core.rhs(model, run.rho[i], run.pe[i], P.n, P.gamma) / P.tc;
+    choked[i] = (dp[i] > 0 && r[i] <= rc) || (dp[i] < 0 && pe[i] > 0 && p0[i] / pe[i] <= rc) ? 1 : 0;
+    if (dp[i] > dp[iMax]) iMax = i;
+    if (dp[i] < dp[iMin]) iMin = i;
+  }
+  const intervals = [];
+  for (let i = 0; i < M; i++) {
+    if (choked[i] && (i === 0 || !choked[i - 1])) intervals.push([run.t[i], null]);
+    if (!choked[i] && i > 0 && choked[i - 1]) intervals[intervals.length - 1][1] = run.t[i];
+  }
+  let mdMax = 0; for (let i = 0; i < M; i++) mdMax = Math.max(mdMax, Math.abs(md[i]));
+  return { t: run.t, rho: run.rho, p0, pe, dp, r, md, choked, iMax, iMin, intervals, mdMax, rc };
+}
+
+const designCache = new Map();
+function designCurve(P, model) {
+  const win = P.tEnd / P.tp;
+  const key = [model, P.n, P.gamma, win.toPrecision(6)].join('|');
+  if (designCache.has(key)) return designCache.get(key);
+  const Ks = [], ds = [];
+  for (let e = -3; e <= 1.0001; e += 0.1) {
+    const K = Math.pow(10, e);
+    const run = Core.simulate({ model, n: P.n, g: P.gamma, tc: K, peFun: Core.gauss(1), tEnd: win, N: 1200 });
+    Ks.push(K); ds.push(Math.max(Core.deltaMax(run, P.n), 1e-12));
+  }
+  const res = { Ks, ds };
+  if (designCache.size > 30) designCache.clear();
+  designCache.set(key, res);
+  return res;
+}
+
+function sizeVent(P, model) {
+  if (P.allow === null) return null;
+  const target = P.allow / P.fs;                                   // allowable peak Δp
+  const dpOf = S => {
+    const tc = Core.ventTime(P.V, S, P.a, P.gamma, 1);
+    const run = Core.simulate({ model, n: P.n, g: P.gamma, tc, peFun: P.peFun, tEnd: P.tEnd, N: 1500 });
+    return Core.deltaMax(run, P.n) * P.pinit;
+  };
+  let lo = Math.log10(P.S / Math.sqrt(P.xi)) - 8, hi = lo + 14;
+  if (dpOf(Math.pow(10, lo)) <= target) return { notCritical: true, target };
+  for (let k = 0; k < 44; k++) {
+    const mid = 0.5 * (lo + hi);
+    if (dpOf(Math.pow(10, mid)) > target) lo = mid; else hi = mid;
+  }
+  const Sreq = Math.pow(10, hi), Ahole = Math.PI * P.dsz * P.dsz / 4 * P.cdsz;
+  return { Sreq, target, holes: Math.ceil(Sreq / Ahole * (1 - 1e-9)), Ahole,
+           tcReq: Core.ventTime(P.V, Sreq, P.a, P.gamma, 1) };
+}
+
+/* ---------- charts (dependency-free SVG) ---------- */
+function niceTicks(min, max, count = 5) {
+  const span = max - min; if (!(span > 0)) return [min];
+  const s0 = span / count, mag = Math.pow(10, Math.floor(Math.log10(s0))), e = s0 / mag;
+  const step = (e >= 7.5 ? 10 : e >= 3.5 ? 5 : e >= 1.5 ? 2 : 1) * mag, out = [];
+  for (let v = Math.ceil(min / step - 1e-9) * step; v <= max + step * 1e-9; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : v);
+  return out;
+}
+const decade = v => { const e = Math.round(Math.log10(v)); return e >= -2 && e <= 2 ? String(+v.toPrecision(3)) : '10' + String(e).split('').map(c => SUP[c] || c).join(''); };
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const charts = {};
+class Chart {
+  constructor(el) {
+    this.el = el; this.cfg = null;
+    this.legend = document.createElement('div'); this.legend.className = 'legend';
+    this.box = document.createElement('div'); this.box.style.position = 'relative';
+    this.tip = document.createElement('div'); this.tip.className = 'tip';
+    el.append(this.legend, this.box); this.box.append(this.tip);
+    new ResizeObserver(() => this.cfg && this.render()).observe(el);
+  }
+  set(cfg) { this.cfg = cfg; this.render(); }
+  render() {
+    const c = this.cfg, W = Math.max(260, this.el.clientWidth), H = c.height || 240;
+    const m = { l: 58, r: 14, t: 10, b: 38 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const all = c.series.filter(s => s.x.length);
+    let x0 = c.xDomain ? c.xDomain[0] : Math.min(...all.map(s => s.x[0]));
+    let x1 = c.xDomain ? c.xDomain[1] : Math.max(...all.map(s => s.x[s.x.length - 1]));
+    let y0 = Infinity, y1 = -Infinity;
+    for (const s of all) for (let i = 0; i < s.y.length; i++) { const v = s.y[i]; if (isFinite(v) && (!c.yLog || v > 0)) { if (v < y0) y0 = v; if (v > y1) y1 = v; } }
+    (c.hlines || []).forEach(h => { if (isFinite(h.y) && (!c.yLog || h.y > 0)) { y0 = Math.min(y0, h.y); y1 = Math.max(y1, h.y); } });
+    if (c.yDomain) { y0 = c.yDomain[0]; y1 = c.yDomain[1]; }
+    let yT, xT;
+    if (c.yLog) {
+      y0 = Math.pow(10, Math.floor(Math.log10(y0))); y1 = Math.pow(10, Math.ceil(Math.log10(y1)));
+      if (y0 === y1) y1 *= 10;
+      yT = []; for (let e = Math.log10(y0); e <= Math.log10(y1) + 1e-9; e++) yT.push(Math.pow(10, e));
+      if (yT.length > 7) yT = yT.filter((_, i) => i % 2 === 0);
+    } else {
+      if (!c.yDomain) { y0 = Math.min(0, y0); if (y1 <= y0) y1 = y0 + 1; const pad = (y1 - y0) * 0.06; y1 += pad; if (y0 < 0) y0 -= pad; }
+      yT = niceTicks(y0, y1, 5); y0 = Math.min(y0, yT[0]); y1 = Math.max(y1, yT[yT.length - 1]);
+    }
+    if (c.xLog) { xT = []; for (let e = Math.ceil(Math.log10(x0) - 1e-9); e <= Math.log10(x1) + 1e-9; e++) xT.push(Math.pow(10, e)); }
+    else xT = niceTicks(x0, x1, Math.max(3, Math.round(iw / 90)));
+    const sx = c.xLog ? v => m.l + (Math.log10(v) - Math.log10(x0)) / (Math.log10(x1) - Math.log10(x0)) * iw : v => m.l + (v - x0) / (x1 - x0) * iw;
+    const sy = c.yLog ? v => m.t + ih - (Math.log10(v) - Math.log10(y0)) / (Math.log10(y1) - Math.log10(y0)) * ih : v => m.t + ih - (v - y0) / (y1 - y0) * ih;
+    const ixs = px => c.xLog ? Math.pow(10, Math.log10(x0) + (px - m.l) / iw * (Math.log10(x1) - Math.log10(x0))) : x0 + (px - m.l) / iw * (x1 - x0);
+    this.sx = sx; this.sy = sy; this.m = m; this.iw = iw; this.ih = ih;
+    const xf = c.xFmt || (v => fmt(v, 3)), yf = c.yFmt || (v => fmt(v, 3));
+    let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" aria-label="${esc(c.aria || '')}" role="img">`;
+    s += `<defs><clipPath id="clip-${this.el.id}"><rect x="${m.l}" y="${m.t - 2}" width="${iw}" height="${ih + 4}"/></clipPath></defs>`;
+    (c.bands || []).forEach(b => {
+      const a = Math.max(sx(Math.max(b.x0, x0)), m.l), z = Math.min(sx(Math.min(b.x1, x1)), m.l + iw);
+      if (z > a) s += `<rect x="${a}" y="${m.t}" width="${z - a}" height="${ih}" fill="${b.color}" opacity="${b.opacity || .14}"/>` +
+        (b.label && z - a > 44 ? `<text x="${a + 6}" y="${m.t + 14}" font-size="11" fill="var(--text-2)">${esc(b.label)}</text>` : '');
+    });
+    (c.hbands || []).forEach(b => {
+      const a = sy(Math.min(b.y1, y1)), z = sy(Math.max(b.y0, y0));
+      if (z > a) s += `<rect x="${m.l}" y="${a}" width="${iw}" height="${z - a}" fill="${b.color}" opacity="${b.opacity || .14}"/>`;
+    });
+    yT.forEach(v => { const y = sy(v); s += `<line x1="${m.l}" x2="${m.l + iw}" y1="${y}" y2="${y}" stroke="var(--grid)" stroke-width="1"/><text x="${m.l - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="var(--text-3)" style="font-variant-numeric:tabular-nums">${esc(yf(v))}</text>`; });
+    xT.forEach(v => { const x = sx(v); if (x < m.l - 1 || x > m.l + iw + 1) return; s += `<line x1="${x}" x2="${x}" y1="${m.t + ih}" y2="${m.t + ih + 4}" stroke="var(--axis)"/><text x="${x}" y="${m.t + ih + 17}" text-anchor="middle" font-size="11" fill="var(--text-3)" style="font-variant-numeric:tabular-nums">${esc(xf(v))}</text>`; });
+    if (c.xLog) for (let e = Math.floor(Math.log10(x0)); e < Math.log10(x1); e++) for (let k = 2; k < 10; k++) { const v = k * Math.pow(10, e); if (v > x0 && v < x1) { const x = sx(v); s += `<line x1="${x}" x2="${x}" y1="${m.t + ih}" y2="${m.t + ih + 2.5}" stroke="var(--axis)"/>`; } }
+    const zeroY = !c.yLog && y0 < 0 ? sy(0) : m.t + ih;
+    s += `<line x1="${m.l}" x2="${m.l + iw}" y1="${m.t + ih}" y2="${m.t + ih}" stroke="var(--axis)"/>`;
+    if (zeroY !== m.t + ih) s += `<line x1="${m.l}" x2="${m.l + iw}" y1="${zeroY}" y2="${zeroY}" stroke="var(--axis)"/>`;
+    s += `<text x="${m.l + iw / 2}" y="${H - 4}" text-anchor="middle" font-size="11.5" fill="var(--text-2)">${c.xLabel}</text>`;
+    s += `<text transform="translate(12 ${m.t + ih / 2}) rotate(-90)" text-anchor="middle" font-size="11.5" fill="var(--text-2)">${c.yLabel}</text>`;
+    (c.hlines || []).forEach(h => {
+      if (!isFinite(h.y) || h.y < y0 || h.y > y1) return; const y = sy(h.y);
+      s += `<line x1="${m.l}" x2="${m.l + iw}" y1="${y}" y2="${y}" stroke="${h.color}" stroke-width="1.5" ${h.dash ? `stroke-dasharray="${h.dash}"` : ''}/>`;
+      if (h.label) s += `<text x="${h.left ? m.l + 6 : m.l + iw - 4}" y="${y - 5}" text-anchor="${h.left ? 'start' : 'end'}" font-size="11" fill="var(--text-2)">${h.label}</text>`;
+    });
+    s += `<g clip-path="url(#clip-${this.el.id})">`;
+    for (const se of all) {
+      const n = se.x.length, step = Math.max(1, Math.floor(n / (iw * 1.5)));
+      let d = '', pen = false;
+      for (let i = 0; i < n; i += (i + step < n || i === n - 1) ? step : (n - 1 - i)) {
+        const v = se.y[i]; if (!isFinite(v) || (c.yLog && v <= 0)) { pen = false; if (i === n - 1) break; continue; }
+        d += (pen ? 'L' : 'M') + sx(se.x[i]).toFixed(1) + ' ' + sy(v).toFixed(1); pen = true;
+        if (i === n - 1) break;
+      }
+      s += `<path d="${d}" fill="none" stroke="${se.color}" stroke-width="${se.width || 2}" stroke-linejoin="round" stroke-linecap="round" ${se.dash ? `stroke-dasharray="${se.dash}"` : ''}/>`;
+    }
+    s += `</g>`;
+    (c.marks || []).forEach(p => {
+      if (!isFinite(p.x) || !isFinite(p.y) || (c.yLog && p.y <= 0)) return;
+      const x = sx(p.x), y = sy(Math.min(Math.max(p.y, y0), y1));
+      s += `<circle cx="${x}" cy="${y}" r="5.5" fill="${p.color}" stroke="var(--surface)" stroke-width="2"/>`;
+      if (p.label) { const right = x < m.l + iw * 0.7; s += `<text x="${x + (right ? 10 : -10)}" y="${y - 8}" text-anchor="${right ? 'start' : 'end'}" font-size="11.5" font-weight="600" fill="var(--text)">${esc(p.label)}</text>`; }
+    });
+    if (c.cursor !== undefined && c.cursor !== null && c.cursor >= x0 && c.cursor <= x1) {
+      const x = sx(c.cursor); s += `<line x1="${x}" x2="${x}" y1="${m.t}" y2="${m.t + ih}" stroke="var(--text-2)" stroke-width="1"/>`;
+    }
+    s += `<g class="hov" style="display:none"><line class="hl" y1="${m.t}" y2="${m.t + ih}" stroke="var(--text-3)" stroke-width="1"/>${all.map(se => `<circle r="4.5" fill="${se.color}" stroke="var(--surface)" stroke-width="2"/>`).join('')}</g>`;
+    s += `<rect class="ov" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent" style="cursor:crosshair"/></svg>`;
+    this.box.innerHTML = s; this.box.append(this.tip);
+    this.legend.innerHTML = all.length > 1 || c.legendAlways ? all.map(se => `<span><svg viewBox="0 0 20 8"><line x1="1" x2="19" y1="4" y2="4" stroke="${se.color}" stroke-width="2.5" stroke-linecap="round" ${se.dash ? `stroke-dasharray="${se.dash}"` : ''}/></svg>${se.name}</span>`).join('') + (c.legendExtra || '') : (c.legendExtra || '');
+    const svg = this.box.querySelector('svg'), ov = svg.querySelector('.ov'), hov = svg.querySelector('.hov');
+    const hl = hov.querySelector('.hl'), dots = hov.querySelectorAll('circle');
+    const near = (arr, v) => { let lo = 0, hi = arr.length - 1; while (hi - lo > 1) { const md = (lo + hi) >> 1; if (arr[md] <= v) lo = md; else hi = md; } return Math.abs(arr[lo] - v) <= Math.abs(arr[hi] - v) ? lo : hi; };
+    const toPx = e => { const r = svg.getBoundingClientRect(); return (e.clientX - r.left) * (W / r.width); };
+    ov.addEventListener('pointermove', e => {
+      const xv = ixs(Math.min(Math.max(toPx(e), m.l), m.l + iw));
+      const ref = all[0], i0 = near(ref.x, xv), X = ref.x[i0];
+      hov.style.display = ''; hl.setAttribute('x1', sx(X)); hl.setAttribute('x2', sx(X));
+      let rows = '';
+      all.forEach((se, k) => {
+        const i = near(se.x, X), v = se.y[i];
+        const ok = isFinite(v) && (!c.yLog || v > 0);
+        dots[k].style.display = ok ? '' : 'none';
+        if (ok) { dots[k].setAttribute('cx', sx(se.x[i])); dots[k].setAttribute('cy', sy(Math.min(Math.max(v, y0), y1))); }
+        rows += `<div class="tr"><i style="background:${se.color}"></i>${se.name}<b>${ok ? (c.tipFmt || yf)(v) : '–'}</b></div>`;
+      });
+      this.tip.innerHTML = `<div class="th">${c.tipX ? c.tipX(X) : xf(X)}</div>${rows}${c.tipExtra ? c.tipExtra(X) : ''}`;
+      this.tip.style.opacity = 1;
+      const bw = this.box.clientWidth, px = sx(X) * (bw / W), tw = this.tip.offsetWidth;
+      this.tip.style.left = (px + 14 + tw > bw ? px - tw - 14 : px + 14) + 'px';
+      this.tip.style.top = (m.t + 6) + 'px';
+    });
+    ov.addEventListener('pointerleave', () => { hov.style.display = 'none'; this.tip.style.opacity = 0; });
+    if (c.onPick) ov.addEventListener('click', e => c.onPick(ixs(toPx(e))));
+  }
+}
+
+/* ---------- schematic ---------- */
+function drawScheme(P, A, i) {
+  const pe = A.pe[i] / P.pinit, p0 = A.p0[i] / P.pinit, dp = A.dp[i], md = A.md[i];
+  const ch = A.choked[i], dpMax = Math.max(Math.abs(A.dp[A.iMax]), Math.abs(A.dp[A.iMin]), 1e-12);
+  const w = Math.min(1, Math.abs(md) / (A.mdMax || 1));
+  const flowCol = ch ? 'var(--warn)' : 'var(--s-int)';
+  const sw = 1 + 3.5 * w, out = md >= 0;
+  const arrow = (x, y) => {
+    const y2 = out ? y - 28 : y - 4, y1 = out ? y - 4 : y - 28, hd = out ? -1 : 1;
+    return w < 0.004 ? '' : `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${flowCol}" stroke-width="${sw}" stroke-linecap="round"/>` +
+      `<path d="M${x - 5} ${y2 - hd * 6} L${x} ${y2 - hd * 0} L${x + 5} ${y2 - hd * 6}" fill="none" stroke="${flowCol}" stroke-width="${Math.max(1.5, sw * .7)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  };
+  const bar = (y, label, frac, val, col) => `
+    <text x="350" y="${y - 8}" font-size="12" fill="var(--text-2)">${label}</text>
+    <text x="620" y="${y - 8}" font-size="12.5" font-weight="600" text-anchor="end" fill="var(--text)" style="font-variant-numeric:tabular-nums">${val}</text>
+    <rect x="350" y="${y}" width="270" height="10" rx="5" fill="var(--surface-3)"/>
+    <rect x="350" y="${y}" width="${Math.max(0, Math.min(1, frac)) * 270}" height="10" rx="5" fill="${col}"/>`;
+  const bodyOp = (0.10 + 0.55 * Math.min(1, p0)).toFixed(3), fairOp = (0.06 + 0.30 * Math.min(1, pe)).toFixed(3);
+  $('scheme').innerHTML = `
+    <path d="M70 255 V118 C70 62 118 24 165 12 C212 24 260 62 260 118 V255 Z" fill="var(--s-fair)" fill-opacity="${fairOp}" stroke="var(--s-fair)" stroke-width="2"/>
+    <line x1="52" x2="278" y1="255" y2="255" stroke="var(--axis)" stroke-width="2"/>
+    <path d="M70 230 h-18 M260 230 h18" stroke="var(--s-fair)" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+    <text x="165" y="64" text-anchor="middle" font-size="12" fill="var(--text-2)">Fairing  p<tspan dy="3" font-size="9">e</tspan></text>
+    <rect x="112" y="150" width="106" height="88" rx="8" fill="var(--s-int)" fill-opacity="${bodyOp}" stroke="var(--s-int)" stroke-width="2"/>
+    <path d="M112 194 h-26 M218 194 h26" stroke="var(--s-int)" stroke-width="2"/>
+    <rect x="74" y="184" width="12" height="20" rx="2" fill="none" stroke="var(--s-int)" stroke-width="1.5"/>
+    <rect x="244" y="184" width="12" height="20" rx="2" fill="none" stroke="var(--s-int)" stroke-width="1.5"/>
+    ${[140, 165, 190].map(x => `<rect x="${x - 4}" y="147" width="8" height="6" fill="var(--surface)"/>` + arrow(x, 146)).join('')}
+    <text x="165" y="200" text-anchor="middle" font-size="12" font-weight="600" fill="var(--text)">p<tspan dy="3" font-size="9">0</tspan><tspan dy="-3">, V</tspan></text>
+    <text x="165" y="217" text-anchor="middle" font-size="11" fill="var(--text-2)">compartment</text>
+    ${ch ? `<g transform="translate(213 112)"><rect width="66" height="20" rx="10" fill="var(--warn)" fill-opacity=".22"/><path d="M10 15 L15 5 L20 15 Z" fill="none" stroke="var(--warn-ink)" stroke-width="1.6" stroke-linejoin="round"/><text x="25" y="14" font-size="11" font-weight="700" fill="var(--warn-ink)">SONIC</text></g>` : ''}
+    ${bar(46, 'Fairing pressure p<tspan dy="3" font-size="9">e</tspan>', pe, fP(A.pe[i]), 'var(--s-fair)')}
+    ${bar(104, 'Compartment pressure p<tspan dy="3" font-size="9">0</tspan>', p0, fP(A.p0[i]), 'var(--s-int)')}
+    ${bar(162, `Differential Δp ${dp >= 0 ? '(bursting)' : '(crushing)'}`, Math.abs(dp) / dpMax, fP(dp), dp >= 0 ? 'var(--s-int)' : 'var(--crit)')}
+    ${bar(220, `Mass flow ${out ? 'out' : 'in'}`, w, `${fmt(Math.abs(md), 3)} kg/s`, flowCol)}`;
+}
+
+/* ---------- rendering ---------- */
+let STATE = null, idx = 0;
+function regime(K) {
+  if (K < 0.1) return ['good', 'Well vented', '<path d="M5 12l5 5 9-10" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'];
+  if (K < 1) return ['warn', 'Transitional venting', '<path d="M12 4 L21 20 H3 Z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M12 10v4M12 17v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'];
+  return ['crit', 'Poorly vented', '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'];
+}
+const badge = (cls, txt, ico) => `<span class="badge ${cls}"><svg viewBox="0 0 24 24">${ico}</svg>${txt}</span>`;
+
+function compute() {
+  const ban = $('banner');
+  let P;
+  try { P = readInputs(); } catch (e) { ban.textContent = e.message; ban.classList.remove('hidden'); return; }
+  ban.classList.add('hidden');
+  const alt = P.model === 'comp' ? 'incomp' : 'comp';
+  const A = analyse(P, P.model), B = analyse(P, alt);
+  const D = designCurve(P, P.model);
+  const Z = sizeVent(P, P.model);
+  STATE = { P, A, B, D, Z };
+  $('scrub').max = A.t.length - 1;
+  if (idx > A.t.length - 1 || idx === 0) idx = A.iMax;
+  $('scrub').value = idx;
+  render();
+  saveHash();
+}
+
+function render() {
+  if (!STATE) return;
+  const { P, A, B, D, Z } = STATE, u = punit();
+  const tpLab = P.tpEquivalent ? 'equivalent t<sub>p</sub>' : 't<sub>p</sub>';
+  $('oTp').innerHTML = `${fmt(P.tp, 4)} s${P.tpEquivalent ? ' (equiv.)' : ''}`;
+  $('oA').textContent = `${fmt(P.a, 4)} m/s`;
+  $('oS').textContent = `${fmt(P.S, 4)} m²`;
+
+  // KPIs
+  const dpm = A.dp[A.iMax], tm = A.t[A.iMax];
+  $('kDp').innerHTML = fPh(dpm, 4);
+  $('kDpSub').innerHTML = `at t = ${fmt(tm, 4)} s (t/t<sub>p</sub> = ${fmt(tm / P.tp, 3)}) · δ<sub>max</sub> = ${fmt(dpm / P.pinit, 3)} · ${dpm >= 0 ? 'bursting load on walls' : 'crushing'}`;
+  $('kTc').innerHTML = `${fmt(P.tc, 4)}<small>s</small>`;
+  $('kTcSub').innerHTML = `V/S = ${fmt(P.V / P.S, 4)} m`;
+  $('kK').textContent = fmt(P.K, 3);
+  const rg = regime(P.K); $('kKBadge').innerHTML = badge(...rg);
+  if (A.intervals.length) {
+    const s0 = A.intervals[0][0], e0 = A.intervals[A.intervals.length - 1][1];
+    $('kSon').innerHTML = `${fmt(s0, 4)}<small>s</small>`;
+    $('kSonSub').textContent = e0 === null ? `start · still choked at t = ${fmt(P.tEnd, 4)} s` : `start · ends at ${fmt(e0, 4)} s`;
+  } else { $('kSon').innerHTML = 'Not reached'; $('kSonSub').textContent = `r stays above r_cr = ${fmt(A.rc, 3)}`; }
+  const dsg = P.fs * dpm;
+  if (P.allow !== null) {
+    const mos = P.allow / dsg - 1;
+    $('kMosLab').innerHTML = 'Margin of safety MoS = Δp<sub>allow</sub>/(FS·Δp<sub>max</sub>) − 1';
+    $('kMos').textContent = fmt(mos, 3);
+    $('kMosSub').innerHTML = mos >= 0 ? badge('good', 'Positive margin', regime(0)[2]) : badge('crit', 'Negative margin', regime(9)[2]);
+  } else {
+    $('kMosLab').innerHTML = 'Design load FS·Δp<sub>max</sub>';
+    $('kMos').innerHTML = fPh(dsg, 4);
+    $('kMosSub').textContent = P.aw ? `F = ${fmt(dsg * P.aw, 4)} N on A_w` : `FS = ${fmt(P.fs, 3)}`;
+  }
+
+  // Charts
+  const tArr = A.t, cursor = A.t[idx], pick = x => setIdx(nearestIdx(A.t, x));
+  const conv = arr => Array.from(arr, v => v / u.k);
+  const sonicBands = A.intervals.map(([a, b]) => ({ x0: a, x1: b === null ? P.tEnd : b, color: 'var(--warn)', opacity: .16, label: 'sonic' }));
+  const tipT = x => `t = ${fmt(x, 4)} s · t/t<sub>p</sub> = ${fmt(x / P.tp, 3)}`;
+  const mName = { comp: 'compressible', incomp: 'incompressible' };
+  charts.p.set({ aria: 'Pressure history', xLabel: 't [s]', yLabel: `p [${u.u}]`, cursor, onPick: pick, tipX: tipT,
+    series: [{ name: 'Compartment p₀', x: tArr, y: conv(A.p0), color: 'var(--s-int)' }, { name: 'Fairing pₑ', x: tArr, y: conv(A.pe), color: 'var(--s-fair)' }] });
+  charts.dp.set({ aria: 'Differential pressure history', xLabel: 't [s]', yLabel: `Δp [${u.u}]`, cursor, onPick: pick, tipX: tipT, bands: sonicBands,
+    legendExtra: A.intervals.length ? `<span><svg viewBox="0 0 20 8"><rect width="20" height="8" rx="2" fill="var(--warn)" opacity=".35"/></svg>Sonic phase</span>` : '',
+    hlines: P.allow !== null ? [{ y: P.allow / P.fs / u.k, color: 'var(--crit)', dash: '6 4', label: 'Allowable / FS' }] : [],
+    series: [{ name: `Δp — ${mName[P.model]} (selected)`, x: tArr, y: conv(A.dp), color: 'var(--s-int)' },
+             { name: `Δp — ${mName[P.model === 'comp' ? 'incomp' : 'comp']}`, x: B.t, y: conv(B.dp), color: 'var(--s-alt)', dash: '5 4', width: 1.75 }],
+    marks: [{ x: tm, y: dpm / u.k, color: 'var(--s-int)', label: `max ${fmt(dpm / u.k, 3)} ${u.u}` }] });
+  charts.r.set({ aria: 'Pressure ratio', xLabel: 't [s]', yLabel: 'r = pₑ / p₀', cursor, onPick: pick, tipX: tipT, yDomain: [0, 1.05],
+    hbands: [{ y0: 0, y1: A.rc, color: 'var(--warn)', opacity: .12 }],
+    hlines: [{ y: A.rc, color: 'var(--text-3)', label: `r<tspan dy="3" font-size="9">cr</tspan><tspan dy="-3"> = ${fmt(A.rc, 3)} (A.19)</tspan>` }],
+    tipFmt: v => fmt(v, 4), yFmt: v => fmt(v, 2),
+    series: [{ name: 'Pressure ratio r', x: tArr, y: Array.from(A.r), color: 'var(--s-int)' }] });
+  const dCur = dpm / P.pinit;
+  charts.k.set({ aria: 'Design chart', xLabel: 'K = t<tspan dy="3" font-size="9">c</tspan><tspan dy="-3"> / t</tspan><tspan dy="3" font-size="9">p</tspan>', yLabel: 'δ<tspan dy="3" font-size="9">max</tspan><tspan dy="-3"> = Δp</tspan><tspan dy="3" font-size="9">max</tspan><tspan dy="-3"> / p</tspan><tspan dy="3" font-size="9">init</tspan>',
+    xLog: true, yLog: true, xFmt: decade, yFmt: decade, tipX: x => `K = ${fmt(x, 3)}`, tipFmt: v => fmt(v, 3),
+    tipExtra: x => `<div class="tr" style="color:var(--text-3)">Δp<sub>max</sub> at your p<sub>init</sub><b>${fP(D.ds[nearestIdx(D.Ks, x)] * P.pinit, 3)}</b></div>`,
+    bands: [{ x0: 1e-3, x1: 0.1, color: 'var(--good)', opacity: .07 }, { x0: 1, x1: 10, color: 'var(--crit)', opacity: .06 }],
+    hlines: P.allow !== null ? [{ y: P.allow / P.fs / P.pinit, color: 'var(--crit)', dash: '6 4', label: 'Allowable / FS', left: true }] : [],
+    series: [{ name: `δmax(K), ${mName[P.model]}`, x: D.Ks, y: D.ds, color: 'var(--s-int)' },
+             { name: 'Quasi-static 4K²/(n·e), K ≪ 1', x: D.Ks, y: D.Ks.map(K => K <= 0.5 ? 4 * K * K / (P.n * Math.E) : NaN), color: 'var(--text-3)', dash: '3 4', width: 1.5 }],
+    marks: [{ x: P.K, y: dCur, color: 'var(--s-fair)', label: 'this design' }] });
+  $('cKNote').innerHTML = P.launcher === 'table' ? 'Gaussian reference with equivalent t<sub>p</sub>' : `Gaussian profile, n = ${fmt(P.n, 3)}, window t/t<sub>p</sub> ≤ ${fmt(P.tEnd / P.tp, 3)}`;
+
+  // Sizing
+  const sb = $('sizingBody');
+  if (!Z) { sb.innerHTML = ''; $('sizingNote').innerHTML = 'Enter an allowable Δp in section 5 to size the vents'; }
+  else if (Z.notCritical) {
+    $('sizingNote').textContent = '';
+    sb.innerHTML = `<div class="box" style="grid-column:1/-1"><div class="lab">Result</div><div class="val" style="font-size:15px">Δp stays below ${fP(Z.target, 3)} for any vent area within the simulated window: venting is not critical for this allowable.</div></div>`;
+  } else {
+    $('sizingNote').innerHTML = `Smallest effective area giving FS·Δp<sub>max</sub> = Δp<sub>allow</sub> (${mName[P.model]} model)`;
+    const cur = P.S / Math.sqrt(P.xi);
+    sb.innerHTML = `
+      <div class="box"><div class="lab">Required effective area S<sub>req</sub> (ξ = 1)</div><div class="val">${fmt(Z.Sreq, 3)} m²</div><div class="hint">= ${fmt(Z.Sreq * 1e6, 4)} mm² · current ${fmt(cur, 3)} m² (${cur >= Z.Sreq ? 'adequate' : 'insufficient'})</div></div>
+      <div class="box"><div class="lab">Holes Ø ${fmt(P.dsz * 1e3, 3)} mm, C<sub>D</sub> = ${fmt(P.cdsz, 3)}</div><div class="val">${Z.holes.toLocaleString('en-US')} holes</div><div class="hint">${fmt(Z.Ahole * 1e6, 4)} mm² effective each</div></div>
+      <div class="box"><div class="lab">Venting time / ratio at S<sub>req</sub></div><div class="val">t<sub>c</sub> = ${fmt(Z.tcReq, 3)} s</div><div class="hint">K = ${fmt(Z.tcReq / P.tp, 3)}</div></div>`;
+  }
+
+  // Detailed table
+  const sonic = A.intervals.length ? A.intervals.map(([a, b]) => `${fmt(a, 4)} → ${b === null ? '> ' + fmt(P.tEnd, 4) : fmt(b, 4)} s`).join(', ') : 'not reached';
+  const rows = [
+    ['Fairing / launcher'],
+    ['Launcher profile', '', P.launcher === 'table' ? 'Tabulated p_e(t)' : LAUNCHERS[P.launcher] ? LAUNCHERS[P.launcher].name : P.launcher === 'custom' ? 'Custom Gaussian' : 'Gaussian from max. rate', 'A.53'],
+    [`Characteristic fairing time${P.tpEquivalent ? ' (equivalent)' : ''}`, tpLab, fT(P.tp), 'Tab. A.1'],
+    ['Initial pressure', 'p<sub>init</sub>', fP(P.pinit), 'A.45'],
+    ['Max. fairing depressurization rate', '|dp<sub>e</sub>/dt|<sub>max</sub>', `${fmt(P.maxRate / 1e3, 4)} kPa/s at ${fmt(P.tMaxRate, 4)} s`, ''],
+    ['Compartment'],
+    ['Effective volume', 'V', `${fmt(P.V, 4)} m³`, 'A.3'],
+    ['Initial density', 'ρ<sub>init</sub> = p/RT', `${fmt(P.rhoInit, 4)} kg/m³`, 'A.8'],
+    ['Initial gas mass', 'm<sub>0</sub>', `${fmt(P.rhoInit * P.V, 4)} kg`, 'A.3'],
+    ['Initial speed of sound', 'a<sub>init</sub>', `${fmt(P.a, 4)} m/s`, 'A.39'],
+    ['Polytropic exponent', 'n', fmt(P.n, 4), 'A.9'],
+    ['Venting'],
+    ['Effective vent section', 'S = C<sub>D</sub>A', `${fmt(P.S, 4)} m²`, 'A.31'],
+    ['Loss coefficient / equivalent C<sub>D</sub>', 'ξ, 1/√ξ', `${fmt(P.xi, 3)} / ${fmt(1 / Math.sqrt(P.xi), 3)}`, 'A.33'],
+    ['Volume-to-area ratio', 'V/S', `${fmt(P.V / P.S, 4)} m`, 'A.38'],
+    ['Characteristic venting time', 't<sub>c</sub>', fT(P.tc), 'A.43'],
+    ['Time-scale ratio', 'K = t<sub>c</sub>/t<sub>p</sub>', `${fmt(P.K, 4)} — ${regime(P.K)[1].toLowerCase()}`, 'A.54'],
+    ['Critical pressure ratio', 'r<sub>cr</sub>', fmt(A.rc, 4), 'A.19'],
+    ['Loads — ' + mName[P.model] + ' model (selected)'],
+    ['Peak differential pressure', 'Δp<sub>max</sub>', fP(dpm), 'A.30'],
+    ['Time of peak', 't<sub>max</sub>, t/t<sub>p</sub>', `${fmt(tm, 4)} s, ${fmt(tm / P.tp, 3)}`, ''],
+    ['Peak dimensionless jump', 'δ<sub>max</sub>', fmt(dpm / P.pinit, 4), 'A.46–47'],
+    ['Pressures at peak', 'p<sub>0</sub>, p<sub>e</sub>', `${fP(A.p0[A.iMax])}, ${fP(A.pe[A.iMax])}`, 'A.28'],
+    ['Compartment temperature at peak', 'T<sub>0</sub> = T ρ̄<sup>n−1</sup>', `${fmt(P.T * Math.pow(A.rho[A.iMax], P.n - 1), 4)} K`, 'A.13'],
+    ['Max. crushing (most negative Δp)', 'Δp<sub>min</sub>', A.dp[A.iMin] < 0 ? fP(A.dp[A.iMin]) : 'none (Δp ≥ 0)', 'A.1'],
+    ['Sonic (choked) phase', 'r ≤ r<sub>cr</sub>', sonic, 'A.61'],
+    ['Peak vent mass flow rate', 'ṁ<sub>max</sub>', `${fmt(A.mdMax, 4)} kg/s`, 'A.22/24'],
+    ['Gas mass remaining at end', 'm/m<sub>0</sub>', `${fmt(A.rho[A.rho.length - 1] * 100, 4)} %`, 'A.5'],
+    ['Comparison'],
+    [`Peak Δp — ${mName[P.model === 'comp' ? 'incomp' : 'comp']} model`, 'Δp<sub>max</sub>', `${fP(B.dp[B.iMax])} at ${fmt(B.t[B.iMax], 4)} s`, P.model === 'comp' ? 'A.52' : 'A.22/24'],
+    ['Quasi-static estimate (K ≪ 1)', '4K² p<sub>init</sub>/(n e)', P.launcher === 'table' ? 'n/a (tabulated)' : `${fP(4 * P.K * P.K * P.pinit / (P.n * Math.E))}${P.K > 0.3 ? ' — not valid, K too large' : ''}`, 'from A.52'],
+    ['Upper bound (no venting)', 'p<sub>init</sub> − p<sub>e</sub>(t<sub>end</sub>)', fP(P.pinit - A.pe[A.pe.length - 1]), ''],
+    ['Structural'],
+    ['Design factor / design load', 'FS · Δp<sub>max</sub>', `${fmt(P.fs, 3)} → ${fP(dsg)}`, ''],
+    ['Allowable / margin of safety', 'MoS', P.allow !== null ? `${fP(P.allow)} → ${fmt(P.allow / dsg - 1, 3)}` : '—', ''],
+    ['Resultant force on loaded wall', 'F = FS Δp<sub>max</sub> A<sub>w</sub>', P.aw ? `${fmt(dsg * P.aw, 4)} N on ${fmt(P.aw, 4)} m²` : '—', '']
+  ];
+  $('resTable').tBodies[0].innerHTML = rows.map(r => r.length === 1 ? `<tr class="grp"><td colspan="4">${r[0]}</td></tr>`
+    : `<tr><td>${r[0]}</td><td class="sym">${r[1]}</td><td class="val">${r[2]}</td><td class="ref">${r[3]}</td></tr>`).join('');
+  renderSnapshot();
+}
+
+function nearestIdx(arr, v) { let lo = 0, hi = arr.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (arr[m] <= v) lo = m; else hi = m; } return Math.abs(arr[lo] - v) <= Math.abs(arr[hi] - v) ? lo : hi; }
+function renderSnapshot() {
+  const { P, A } = STATE;
+  drawScheme(P, A, idx);
+  $('tlabel').innerHTML = `t = ${fmt(A.t[idx], 4)} s · t/t<sub>p</sub> = ${fmt(A.t[idx] / P.tp, 3)}`;
+}
+function setIdx(i, fromSlider) {
+  if (!STATE) return;
+  idx = Math.max(0, Math.min(STATE.A.t.length - 1, i));
+  if (!fromSlider) $('scrub').value = idx;
+  renderSnapshot();
+  ['p', 'dp', 'r'].forEach(k => { charts[k].cfg.cursor = STATE.A.t[idx]; charts[k].render(); });
+}
+
+/* ---------- UI wiring ---------- */
+function syncVisibility() {
+  const l = $('launcher').value;
+  $('fTp').classList.toggle('hidden', l !== 'custom');
+  $('fRate').classList.toggle('hidden', l !== 'rate');
+  $('fTable').classList.toggle('hidden', l !== 'table');
+  $('fPinit').classList.toggle('hidden', l === 'table');
+  $('launcherHint').innerHTML = l === 'table' ? 'User-supplied p<sub>e</sub>(t); K uses an equivalent t<sub>p</sub> from the max. slope.'
+    : l === 'rate' ? 'Gaussian law with t<sub>p</sub> matched to the max. depressurization rate.'
+    : 'Gaussian law p̄<sub>e</sub> = exp[−(t/t<sub>p</sub>)²], Eq. (A.53).';
+  const holes = document.querySelector('[name="vmode"]:checked').value === 'holes';
+  $('fArea').classList.toggle('hidden', holes); $('fHoles').classList.toggle('hidden', !holes);
+  const g = $('gas').value, custom = g === 'custom';
+  ['gamma', 'R'].forEach(id => $(id).readOnly = !custom);
+  if (!custom) { $('gamma').value = GASES[g][0]; $('R').value = GASES[g][1]; }
+  const nm = $('nmode').value;
+  $('n').readOnly = nm !== 'custom';
+  if (nm === 'isen') $('n').value = $('gamma').value; else if (nm === 'iso') $('n').value = 1;
+}
+let timer = null;
+function schedule() { syncVisibility(); clearTimeout(timer); timer = setTimeout(compute, 140); }
+document.querySelectorAll('[data-p]').forEach(el => {
+  if (el.id === 'punit') el.addEventListener('change', () => { render(); saveHash(); });
+  else el.addEventListener(el.tagName === 'SELECT' || el.type === 'radio' ? 'change' : 'input', schedule);
+});
+$('scrub').addEventListener('input', e => setIdx(+e.target.value, true));
+
+let playing = null;
+$('btnPlay').addEventListener('click', () => {
+  if (playing) { cancelAnimationFrame(playing); playing = null; $('playIco').innerHTML = '<path d="M8 5v14l11-7z"/>'; return; }
+  if (!STATE) return;
+  const M = STATE.A.t.length; if (idx >= M - 1) idx = 0;
+  $('playIco').innerHTML = '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>';
+  let last = performance.now();
+  const step = now => {
+    const di = Math.max(1, Math.round((now - last) / 8000 * M)); last = now;
+    setIdx(idx + di);
+    if (idx >= M - 1) { playing = null; $('playIco').innerHTML = '<path d="M8 5v14l11-7z"/>'; return; }
+    playing = requestAnimationFrame(step);
+  };
+  playing = requestAnimationFrame(step);
+});
+
+function setValues(vals) {
+  Object.entries(vals).forEach(([k, v]) => {
+    const radios = document.querySelectorAll(`[name="${k}"]`);
+    if (radios.length) radios.forEach(r => r.checked = r.value === v);
+    else if ($(k)) $(k).value = v;
+  });
+}
+const EXAMPLES = {
+  1: { S: '24e-5', Su: '1' }, 2: { S: '24e-6', Su: '1' }, 3: { S: '24e-7', Su: '1' }
+};
+document.querySelectorAll('[data-example]').forEach(b => b.addEventListener('click', () => {
+  const k = b.dataset.example;
+  setValues(DEFAULTS);
+  if (k !== 'reset') {
+    // Table A.2: V = 0.13 m³, a_init = 335 m/s, γ = 1.4, ξ = 1, t_p = 75 s (Ariane 40); p_init = 100 kPa
+    setValues({ launcher: 'ariane40', pinit: '100', V: '0.13', Vu: '1', gas: 'air', T: (335 * 335 / (1.4 * 287.05)).toFixed(2),
+                vmode: 'area', xi: '1', nmode: 'isen', model: 'comp', tend: '', ...EXAMPLES[k] });
+  }
+  idx = 0; syncVisibility(); compute();
+}));
+
+function saveHash() {
+  const q = new URLSearchParams();
+  document.querySelectorAll('[data-p]').forEach(el => {
+    if (el.type === 'radio') { if (el.checked) q.set(el.name, el.value); return; }
+    if (el.value !== DEFAULTS[el.id]) q.set(el.id, el.value);
+  });
+  try { history.replaceState(null, '', '#' + q.toString()); } catch (e) { /* file:// in some browsers */ }
+}
+function loadHash() {
+  if (location.hash.length < 2) return;
+  const q = new URLSearchParams(location.hash.slice(1)), vals = {};
+  q.forEach((v, k) => vals[k] = v);
+  setValues(vals);
+}
+$('btnShare').addEventListener('click', async () => {
+  saveHash();
+  const b = $('btnShare'), old = b.querySelector('.lbl').textContent;
+  try { await navigator.clipboard.writeText(location.href); b.querySelector('.lbl').textContent = 'Copied'; }
+  catch (e) { prompt('Copy this link:', location.href); }
+  setTimeout(() => b.querySelector('.lbl').textContent = old, 1500);
+});
+$('btnCsv').addEventListener('click', () => {
+  if (!STATE) return;
+  const { P, A, B } = STATE;
+  const head = [
+    `# Launch decompression calculator - ${P.model === 'comp' ? 'compressible' : 'incompressible'} vent model (Appendix A)`,
+    `# V=${P.V} m3; S=${P.S} m2; xi=${P.xi}; gamma=${P.gamma}; R=${P.R}; T=${P.T} K; n=${P.n}; p_init=${P.pinit} Pa; t_p=${P.tp} s; t_c=${P.tc} s; K=${P.K}`,
+    `# dp_max=${A.dp[A.iMax]} Pa at t=${A.t[A.iMax]} s`,
+    't [s],p_e [Pa],p_0 [Pa],dp [Pa],r=pe/p0,mdot_out [kg/s],choked,dp_alt_model [Pa]'
+  ];
+  const lines = [];
+  for (let i = 0; i < A.t.length; i++) lines.push([A.t[i], A.pe[i], A.p0[i], A.dp[i], A.r[i], A.md[i]].map(fmtCsv).join(',') + `,${A.choked[i]},${fmtCsv(B.dp[i])}`);
+  const blob = new Blob([head.concat(lines).join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'decompression_history.csv';
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+$('btnPrint').addEventListener('click', () => window.print());
+$('btnTheme').addEventListener('click', () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('decomp-theme', root.dataset.theme); } catch (e) { /* storage unavailable */ }
+});
+try { const t = localStorage.getItem('decomp-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) { /* storage unavailable */ }
+
+charts.p = new Chart($('cP')); charts.dp = new Chart($('cDp')); charts.r = new Chart($('cR')); charts.k = new Chart($('cK'));
+loadHash(); syncVisibility(); compute();
+</script>
+</body>
+</html>
