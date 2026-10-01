@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Launch Decompression Calculator</title>
-<meta name="description" content="Zero-dimensional venting model for launch depressurization loads on spacecraft compartments inside the launcher fairing (A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026).">
+<meta name="description" content="Zero-dimensional venting model for launch depressurization loads on spacecraft compartments inside the launcher fairing (A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026).">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M9 29V13C9 7 13 3 16 2c3 1 7 5 7 11v16z' fill='%232a78d6'/%3E%3Crect x='12' y='17' width='8' height='7' rx='1.5' fill='%23fff'/%3E%3C/svg%3E">
 <style>
 :root{
@@ -178,7 +178,12 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
 .sizing .box{background:var(--surface-2);border-radius:10px;padding:10px 12px}
 .sizing .box .lab{font-size:12px;color:var(--text-2)}
 .sizing .box .val{font-size:18px;font-weight:620;margin-top:2px;font-variant-numeric:tabular-nums}
-.foot{max-width:1520px;margin:0 auto;padding:0 20px 28px;font-size:12px;color:var(--text-3)}
+.foot{max-width:1520px;margin:0 auto;padding:4px 20px 28px;font-size:12px;color:var(--text-3);display:flex;flex-direction:column;gap:14px}
+.foot h4{margin:0 0 4px;font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2)}
+.foot ol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:2px;color:var(--text-2)}
+.foot p{margin:6px 0 0}
+.foot a{color:var(--accent-ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px}
+.foot .copy{border-top:1px solid var(--border);padding-top:12px}
 
 @media print{
   .topbar .toolbar,.scrub button,.presets,.unitsel{display:none!important}
@@ -196,7 +201,7 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
     <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 29V13C9 7 13 3 16 2c3 1 7 5 7 11v16z" fill="var(--accent)"/><rect x="12" y="17" width="8" height="7" rx="1.5" fill="var(--surface)"/><path d="M14 17v-2M16 17v-3M18 17v-2" stroke="var(--surface)" stroke-width="1.2" stroke-linecap="round"/></svg>
     <div>
       <h1>Launch Decompression Calculator</h1>
-      <p>Zero-dimensional venting model of a compartment inside the launcher fairing · A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026</p>
+      <p>Zero-dimensional venting model of a compartment inside the launcher fairing · A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026</p>
     </div>
   </div>
   <div class="spacer"></div>
@@ -219,7 +224,7 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
         <button class="chip" data-example="3">UPM-Sat 1 · Case 3</button>
         <button class="chip" data-example="reset">Defaults</button>
       </div>
-      <div class="hint" style="margin-top:8px">Reference case of Sec. A.4.1 (Tables A.2–A.3), Ariane 4 / ASAP — A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026.</div>
+      <div class="hint" style="margin-top:8px">Reference case of Sec. A.4.1 (Tables A.2–A.3), Ariane 4 / ASAP — A. Pagani et al., PoliTO, 2026; Á. Sanz-Andrés et al., JSR, 1997.</div>
     </section>
 
     <section class="card sec">
@@ -333,10 +338,10 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
       <div class="field">
         <label for="model">Vent flow model</label>
         <select id="model" class="full" data-p>
-          <option value="comp">Compressible orifice — Eqs. (A.22)/(A.24)</option>
-          <option value="incomp">Incompressible orifice — Eq. (A.52)</option>
+          <option value="comp">Pagani &amp; Carrera, AASS, 2016 — Eqs. (A.22)/(A.24)</option>
+          <option value="incomp">Sanz-Andrés et al., JSR, 1997 — Eq. (A.52)</option>
         </select>
-        <div class="hint">The other model is always computed too and shown dashed for comparison.</div>
+        <div class="hint">Pagani &amp; Carrera: compressible orifice flow, choked or subcritical. Sanz-Andrés et al.: incompressible loss law, valid for small Δp. The other model is always computed too and shown dashed for comparison.</div>
       </div>
       <div class="row2">
         <div class="field">
@@ -361,7 +366,7 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
         <div class="field">
           <label for="nsteps">Time steps</label>
           <div class="ctl"><input id="nsteps" type="text" inputmode="decimal" value="4000" data-p></div>
-          <div class="hint">Implicit BDF2.</div>
+          <div class="hint">Implicit BDF2, already converged at the default. More steps only refine the time grid of plots and CSV.</div>
         </div>
       </div>
     </section>
@@ -417,6 +422,8 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
     <div class="grid2">
       <section class="card panel"><div class="phead"><h3>Pressure history</h3><span class="note">Compartment vs fairing</span></div><div id="cP" class="chart"></div></section>
       <section class="card panel"><div class="phead"><h3>Differential pressure Δp(t)</h3><span class="note" id="cDpNote">Positive = bursting</span></div><div id="cDp" class="chart"></div></section>
+      <section class="card panel"><div class="phead"><h3>Gas density</h3><span class="note">Compartment ρ<sub>0</sub> vs fairing ρ<sub>e</sub></span></div><div id="cRho" class="chart"></div></section>
+      <section class="card panel"><div class="phead"><h3>Gas temperature</h3><span class="note">Polytropic law, Eq. (A.13)</span></div><div id="cT" class="chart"></div></section>
       <section class="card panel"><div class="phead"><h3>Sonic-phase check r = p<sub>e</sub>/p<sub>0</sub></h3><span class="note">Choked when r ≤ r<sub>cr</sub></span></div><div id="cR" class="chart"></div></section>
       <section class="card panel"><div class="phead"><h3>Design chart δ<sub>max</sub> vs K</h3><span class="note" id="cKNote">Gaussian profile, same n and γ</span></div><div id="cK" class="chart"></div></section>
     </div>
@@ -427,7 +434,7 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
     </section>
 
     <section class="card panel">
-      <div class="phead"><h3>Detailed results</h3><span class="note">Equation numbers refer to A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026</span></div>
+      <div class="phead"><h3>Detailed results</h3><span class="note">Equation numbers refer to A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026</span></div>
       <div class="tablewrap"><table class="res" id="resTable"><thead><tr><th>Quantity</th><th>Symbol</th><th style="text-align:right">Value</th><th style="text-align:right">Ref.</th></tr></thead><tbody></tbody></table></div>
     </section>
 
@@ -437,19 +444,33 @@ table.res td.sym{white-space:nowrap;color:var(--text-2)}
         <li>Zero-dimensional (lumped) compartment: uniform p, ρ, T; rigid walls (constant V); single equivalent vent to the fairing (Eqs. A.2–A.7).</li>
         <li>Polytropic closure p/ρ<sup>n</sup> = const (Eq. A.9); n = γ is the usual, conservative choice for fast depressurization.</li>
         <li>Fairing pressure is imposed: Gaussian law of Eq. (A.53), or the user table. Real profiles should come from the launcher user's manual.</li>
-        <li>Compressible model: choked/subcritical orifice flow (Eqs. A.22/A.24) with S/√ξ as effective area; its small-Δp limit is exactly Eq. (A.52). Reverse flow (p<sub>e</sub> &gt; p<sub>0</sub>) is handled with the fairing gas as upstream.</li>
+        <li>Pagani &amp; Carrera, AASS, 2016 model: compressible isentropic orifice flow, choked or subcritical (Eqs. A.22/A.24), with S/√ξ as effective area. Valid at any pressure ratio. Reverse flow (p<sub>e</sub> &gt; p<sub>0</sub>) is handled with the fairing gas as upstream.</li>
+        <li>Sanz-Andrés et al., JSR, 1997 model: incompressible loss law Δp = ½ρ<sub>0</sub>U<sub>h</sub><sup>2</sup>ξ (Eqs. A.32–A.36), valid for small pressure differences. It has no sonic limit, so once the vents choke it overestimates the outflow and underestimates Δp. For small Δp it coincides with the compressible model.</li>
+        <li>Fairing gas density and temperature (plots only, and inflow in reverse flow) assume the same polytropic law as the compartment.</li>
         <li>Not modelled: outgassing, heat exchange beyond the polytropic law, acoustic/wave effects (valid only if the acoustic time ≪ t<sub>c</sub>), multiple interconnected compartments (Eq. A.14), and wall flexibility.</li>
       </ul>
     </section>
   </main>
 </div>
-<div class="foot">Model: A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026; Á. Sanz-Andrés, J. Santiago-Prowald, A. Ayuso-Barea, J. Spacecraft &amp; Rockets 34(6):805–810, 1997; NASA SP-8060 “Compartment Venting”. Preliminary-design tool: verify flight hardware against launcher-specific data.</div>
+<footer class="foot">
+  <div class="refs">
+    <h4>References</h4>
+    <ol>
+      <li>A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026.</li>
+      <li>A. Pagani, E. Carrera, <a href="https://alfonsopagani.github.io/svs/papers/pagani_carrera_aas_2016.pdf" target="_blank" rel="noopener">“Gasdynamics of rapid and explosive decompressions of pressurized aircraft including active venting”</a>, Advances in Aircraft and Spacecraft Science, 3(1):77–93, 2016.</li>
+      <li>Á. Sanz-Andrés, J. Santiago-Prowald, A. Ayuso-Barea, “Spacecraft Launch Depressurization Loads”, Journal of Spacecraft and Rockets, 34(6):805–810, 1997.</li>
+      <li>NASA SP-8060, “Compartment Venting”, NASA Space Vehicle Design Criteria (Structures), 1970.</li>
+    </ol>
+    <p>Preliminary-design tool: verify flight hardware against launcher-specific data.</p>
+  </div>
+  <div class="copy">© 2026 Alfonso Pagani · Built with Claude by Anthropic · Source code on <a href="https://github.com/alfonsopagani" target="_blank" rel="noopener">github.com/alfonsopagani</a></div>
+</footer>
 
 <script>
 'use strict';
 // ==== CORE BEGIN
 /* Gas-dynamic core: zero-dimensional venting model of
-   A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026.
+   A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026.
    All state is dimensionless: rho = rho0/rho_init, pe = pe/p_init, tau = t/tc. */
 const Core = (() => {
   // Critical pressure ratio, Eq. (A.19)
@@ -529,6 +550,7 @@ const Core = (() => {
 
 /* ======================= Application ======================= */
 const $ = id => document.getElementById(id);
+const MODEL_NAMES = { comp: 'Pagani & Carrera, AASS, 2016', incomp: 'Sanz-Andrés et al., JSR, 1997' };
 const LAUNCHERS = {
   ariane40: { name: 'Ariane 40', tp: 75 }, ariane42p: { name: 'Ariane 42P', tp: 73 },
   ariane44p: { name: 'Ariane 44P', tp: 53 }, delta3920max: { name: 'Delta 3920 (max)', tp: 57 },
@@ -896,7 +918,9 @@ function compute() {
   const A = analyse(P, P.model), B = analyse(P, alt);
   const D = designCurve(P, P.model);
   const Z = sizeVent(P, P.model);
-  STATE = { P, A, B, D, Z };
+  const half = Core.simulate({ model: P.model, n: P.n, g: P.gamma, tc: P.tc, peFun: P.peFun, tEnd: P.tEnd, N: Math.max(100, Math.round(P.N / 2)) });
+  const dpHalf = Core.deltaMax(half, P.n) * P.pinit;
+  STATE = { P, A, B, D, Z, dpHalf };
   $('scrub').max = A.t.length - 1;
   if (idx > A.t.length - 1 || idx === 0) idx = A.iMax;
   $('scrub').value = idx;
@@ -906,7 +930,7 @@ function compute() {
 
 function render() {
   if (!STATE) return;
-  const { P, A, B, D, Z } = STATE, u = punit();
+  const { P, A, B, D, Z, dpHalf } = STATE, u = punit();
   const tpLab = P.tpEquivalent ? 'equivalent t<sub>p</sub>' : 't<sub>p</sub>';
   $('oTp').innerHTML = `${fmt(P.tp, 4)} s${P.tpEquivalent ? ' (equiv.)' : ''}`;
   $('oA').textContent = `${fmt(P.a, 4)} m/s`;
@@ -942,9 +966,16 @@ function render() {
   const conv = arr => Array.from(arr, v => v / u.k);
   const sonicBands = A.intervals.map(([a, b]) => ({ x0: a, x1: b === null ? P.tEnd : b, color: 'var(--warn)', opacity: .16, label: 'sonic' }));
   const tipT = x => `t = ${fmt(x, 4)} s · t/t<sub>p</sub> = ${fmt(x / P.tp, 3)}`;
-  const mName = { comp: 'compressible', incomp: 'incompressible' };
+  const mName = MODEL_NAMES;
   charts.p.set({ aria: 'Pressure history', xLabel: 't [s]', yLabel: `p [${u.u}]`, cursor, onPick: pick, tipX: tipT,
     series: [{ name: 'Compartment p₀', x: tArr, y: conv(A.p0), color: 'var(--s-int)' }, { name: 'Fairing pₑ', x: tArr, y: conv(A.pe), color: 'var(--s-fair)' }] });
+  const rhoA = Array.from(A.rho, r => r * P.rhoInit), rhoE = Array.from(A.pe, v => P.rhoInit * Math.pow(v / P.pinit, 1 / P.n));
+  charts.rho.set({ aria: 'Gas density history', xLabel: 't [s]', yLabel: 'ρ [kg/m³]', cursor, onPick: pick, tipX: tipT, tipFmt: v => `${fmt(v, 4)} kg/m³`,
+    series: [{ name: 'Compartment ρ₀', x: tArr, y: rhoA, color: 'var(--s-int)' }, { name: 'Fairing ρₑ', x: tArr, y: rhoE, color: 'var(--s-fair)' }] });
+  const TA = Array.from(A.rho, r => P.T * Math.pow(r, P.n - 1)), TE = Array.from(A.pe, v => P.T * Math.pow(v / P.pinit, (P.n - 1) / P.n));
+  charts.T.set({ aria: 'Gas temperature history', xLabel: 't [s]', yLabel: 'T [K]', cursor, onPick: pick, tipX: tipT, tipFmt: v => `${fmt(v, 4)} K`,
+    yDomain: P.n === 1 ? [0, P.T * 1.1] : undefined,
+    series: [{ name: 'Compartment T₀', x: tArr, y: TA, color: 'var(--s-int)' }, { name: 'Fairing Tₑ', x: tArr, y: TE, color: 'var(--s-fair)' }] });
   charts.dp.set({ aria: 'Differential pressure history', xLabel: 't [s]', yLabel: `Δp [${u.u}]`, cursor, onPick: pick, tipX: tipT, bands: sonicBands,
     legendExtra: A.intervals.length ? `<span><svg viewBox="0 0 20 8"><rect width="20" height="8" rx="2" fill="var(--warn)" opacity=".35"/></svg>Sonic phase</span>` : '',
     hlines: P.allow !== null ? [{ y: P.allow / P.fs / u.k, color: 'var(--crit)', dash: '6 4', label: 'Allowable / FS' }] : [],
@@ -1016,6 +1047,7 @@ function render() {
     ['Comparison'],
     [`Peak Δp — ${mName[P.model === 'comp' ? 'incomp' : 'comp']} model`, 'Δp<sub>max</sub>', `${fP(B.dp[B.iMax])} at ${fmt(B.t[B.iMax], 4)} s`, P.model === 'comp' ? 'A.52' : 'A.22/24'],
     ['Quasi-static estimate (K ≪ 1)', '4K² p<sub>init</sub>/(n e)', P.launcher === 'table' ? 'n/a (tabulated)' : `${fP(4 * P.K * P.K * P.pinit / (P.n * Math.E))}${P.K > 0.3 ? ' — not valid, K too large' : ''}`, 'from A.52'],
+    ['Numerical check: Δp<sub>max</sub> with half the time steps', `N = ${Math.max(100, Math.round(P.N / 2))}`, `${fP(dpHalf)} (difference ${fmt(Math.abs(dpHalf - dpm) / Math.max(Math.abs(dpm), 1e-30) * 100, 2)} %)`, ''],
     ['Upper bound (no venting)', 'p<sub>init</sub> − p<sub>e</sub>(t<sub>end</sub>)', fP(P.pinit - A.pe[A.pe.length - 1]), ''],
     ['Structural'],
     ['Design factor / design load', 'FS · Δp<sub>max</sub>', `${fmt(P.fs, 3)} → ${fP(dsg)}`, ''],
@@ -1038,7 +1070,7 @@ function setIdx(i, fromSlider) {
   idx = Math.max(0, Math.min(STATE.A.t.length - 1, i));
   if (!fromSlider) $('scrub').value = idx;
   renderSnapshot();
-  ['p', 'dp', 'r'].forEach(k => { charts[k].cfg.cursor = STATE.A.t[idx]; charts[k].render(); });
+  ['p', 'dp', 'rho', 'T', 'r'].forEach(k => { charts[k].cfg.cursor = STATE.A.t[idx]; charts[k].render(); });
 }
 
 /* ---------- UI wiring ---------- */
@@ -1138,13 +1170,13 @@ $('btnCsv').addEventListener('click', () => {
   if (!STATE) return;
   const { P, A, B } = STATE;
   const head = [
-    `# Launch decompression calculator - ${P.model === 'comp' ? 'compressible' : 'incompressible'} vent model (A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026)`,
+    `# Launch decompression calculator - ${MODEL_NAMES[P.model]} vent model (A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026)`,
     `# V=${P.V} m3; S=${P.S} m2; xi=${P.xi}; gamma=${P.gamma}; R=${P.R}; T=${P.T} K; n=${P.n}; p_init=${P.pinit} Pa; t_p=${P.tp} s; t_c=${P.tc} s; K=${P.K}`,
     `# dp_max=${A.dp[A.iMax]} Pa at t=${A.t[A.iMax]} s`,
-    't [s],p_e [Pa],p_0 [Pa],dp [Pa],r=pe/p0,mdot_out [kg/s],choked,dp_alt_model [Pa]'
+    't [s],p_e [Pa],p_0 [Pa],dp [Pa],rho_0 [kg/m3],T_0 [K],r=pe/p0,mdot_out [kg/s],choked,dp_alt_model [Pa]'
   ];
   const lines = [];
-  for (let i = 0; i < A.t.length; i++) lines.push([A.t[i], A.pe[i], A.p0[i], A.dp[i], A.r[i], A.md[i]].map(fmtCsv).join(',') + `,${A.choked[i]},${fmtCsv(B.dp[i])}`);
+  for (let i = 0; i < A.t.length; i++) lines.push([A.t[i], A.pe[i], A.p0[i], A.dp[i], A.rho[i] * P.rhoInit, P.T * Math.pow(A.rho[i], P.n - 1), A.r[i], A.md[i]].map(fmtCsv).join(',') + `,${A.choked[i]},${fmtCsv(B.dp[i])}`);
   const csv = head.concat(lines).join('\n');
   if (EMBED) {
     const lbl = $('btnCsv').querySelector('.lbl'), showText = () => { $('csvText').value = csv; $('csvPanel').classList.remove('hidden'); $('csvText').focus(); $('csvText').select(); };
@@ -1164,7 +1196,7 @@ $('btnTheme').addEventListener('click', () => {
 });
 try { const t = localStorage.getItem('decomp-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) { /* storage unavailable */ }
 
-charts.p = new Chart($('cP')); charts.dp = new Chart($('cDp')); charts.r = new Chart($('cR')); charts.k = new Chart($('cK'));
+charts.p = new Chart($('cP')); charts.rho = new Chart($('cRho')); charts.T = new Chart($('cT')); charts.dp = new Chart($('cDp')); charts.r = new Chart($('cR')); charts.k = new Chart($('cK'));
 loadHash(); syncVisibility(); compute();
 </script>
 </body>

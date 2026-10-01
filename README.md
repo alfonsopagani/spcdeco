@@ -1,6 +1,6 @@
 # spcdeco — Launch Decompression Calculator
 
-`index.html` is a self-contained interactive tool that estimates the **launch depressurization (decompression) loads** on a spacecraft compartment, equipment box or sandwich cavity inside the launcher fairing. It implements the zero-dimensional venting model of **A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026** (`svsbook_light.pdf`). The appendix follows Sanz-Andrés *et al.* (1997) and NASA SP-8060.
+`index.html` is a self-contained interactive tool that estimates the **launch depressurization (decompression) loads** on a spacecraft compartment, equipment box or sandwich cavity inside the launcher fairing. It implements the zero-dimensional venting model of **A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026** (`svsbook_light.pdf`). Vent flow can be modelled with the compressible orifice law of Pagani & Carrera (2016) or the small-Δp incompressible law of Sanz-Andrés *et al.* (1997).
 
 During ascent the fairing pressure `pe(t)` drops from about 1 atm to vacuum in a minute or two. If the gas trapped in a compartment cannot escape through its vents fast enough, a differential pressure `Δp(t) = p0(t) − pe(t)` builds up on the walls. The tool gives you the **peak differential pressure Δp_max**, the time at which it occurs, the venting time scales, the sonic-flow phase, a structural margin and the vent area needed to meet an allowable load.
 
@@ -24,9 +24,9 @@ To try the reference case from the book, click **UPM-Sat 1 · Case 1/2/3** in th
 | **Left column: inputs** | Five numbered sections (launcher, compartment, venting, model, structural check), plus example presets. |
 | **KPI row** | Δp_max (hero figure, with a unit selector: Pa, kPa, mbar, psi), venting time `tc`, time ratio `K` with a venting-regime badge, start of the sonic phase, and the design load or margin of safety. |
 | **Ascent snapshot** | A schematic of the fairing and compartment at a selected instant. The fill intensity shows the pressure, and the arrows show the vent mass flow; they turn amber and a **SONIC** tag appears when the vents are choked. The bars show `pe`, `p0`, `Δp` and the mass flow. Use **▶** to animate the ascent, or drag the slider. |
-| **Charts** | Pressure history · Δp(t) · sonic-phase check `r = pe/p0` · design chart `δ_max` vs `K`. Hover any chart for a crosshair read-out. Click a time chart to move the snapshot to that instant. |
+| **Charts** | Pressure history · Δp(t) · gas density · gas temperature · sonic-phase check `r = pe/p0` · design chart `δ_max` vs `K`. Hover any chart for a crosshair read-out. Click a time chart to move the snapshot to that instant. |
 | **Vent sizing** | The minimum vent area, and the matching number of holes, that keeps the load within the allowable. Shown only after you set an allowable Δp. |
-| **Detailed results** | Every computed quantity, with its symbol and the equation number in A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026. |
+| **Detailed results** | Every computed quantity, with its symbol and the equation number in A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026. |
 
 If an input is invalid, the field is outlined in red and a message appears above the results. The last valid results stay on screen until you correct it.
 
@@ -67,10 +67,10 @@ Choose how to define the vents:
 
 | Input | Notes |
 |---|---|
-| **Vent flow model** | **Compressible orifice** (default): choked and subcritical isentropic orifice flow, Eqs. (A.22)/(A.24). **Incompressible orifice**: the compact form of Eq. (A.52), `dρ̄/dτ = −√(ρ̄(ρ̄ⁿ − p̄e))`. Both are always computed; the model you don't select is drawn dashed on the Δp chart and listed under *Comparison*. |
+| **Vent flow model** | **Pagani & Carrera, AASS, 2016 — Eqs. (A.22)/(A.24)** (default): compressible isentropic orifice flow, choked or subcritical, valid at any pressure ratio. **Sanz-Andrés et al., JSR, 1997 — Eq. (A.52)**: incompressible loss law `Δp = ½ρ0·Uh²·ξ` in the compact form `dρ̄/dτ = −√(ρ̄(ρ̄ⁿ − p̄e))`, valid for **small pressure differences** only (see section 6). Both are always computed; the model you don't select is drawn dashed on the Δp chart and listed under *Comparison*. |
 | **Thermodynamics** | Isentropic `n = γ` (default, recommended for fast depressurization), isothermal `n = 1`, or a custom polytropic `n` (Eq. A.9). |
 | **End time [s]** | Leave it blank for the automatic window: `3·tp` (Eq. A.59) for the Gaussian profiles, or the last table time. |
-| **Time steps** | Number of steps of the implicit integrator. The default of 4000 is accurate to better than 0.01 %. |
+| **Time steps** | Number of steps of the implicit integrator (200–50 000). The solution is already converged at the default of 4000: in the UPM-Sat 1 cases even 200 steps change Δp_max only in the fifth significant figure, so the displayed values do not change. More steps only refine the time grid of the plots and the CSV. The *Numerical check* row of the results table repeats the run with half the steps and shows the difference. |
 
 ### 3.5 Structural check & vent sizing (optional)
 
@@ -100,8 +100,10 @@ Choose how to define the vents:
 
 1. **Pressure history**: compartment `p0(t)` against fairing `pe(t)`. The gap between the two curves is the load.
 2. **Differential pressure Δp(t)**: the selected model as a solid line, the other model dashed. The peak is labelled, and the sonic phase is shaded amber.
-3. **Sonic-phase check**: `r(t) = pe/p0` against `r_cr`. The shaded band below `r_cr` is the choked regime.
-4. **Design chart**: `δ_max` against `K` on log–log axes, for the Gaussian profile with the current γ and n and the same time window. The orange dot marks your design. Use it to see at once how much an extra vent hole would buy. The dotted line is the quasi-static asymptote `δ_max ≈ 4K²/(n·e)`, valid only for K ≪ 1. It follows from Eq. (A.52) when the compartment pressure tracks the fairing pressure. The green and red backgrounds mark the K < 0.1 and K > 1 regions.
+3. **Gas density**: compartment `ρ0(t) = ρ_init·ρ̄` against the fairing gas density `ρe = ρ_init·(pe/p_init)^(1/n)`.
+4. **Gas temperature**: compartment `T0(t) = T_init·ρ̄^(n−1)` (Eq. A.13) against the fairing gas `Te = T_init·(pe/p_init)^((n−1)/n)`. Both are flat in the isothermal case (n = 1). The fairing curves assume the fairing gas follows the same polytropic law as the compartment.
+5. **Sonic-phase check**: `r(t) = pe/p0` against `r_cr`. The shaded band below `r_cr` is the choked regime.
+6. **Design chart**: `δ_max` against `K` on log–log axes, for the Gaussian profile with the current γ and n and the same time window. The orange dot marks your design. Use it to see at once how much an extra vent hole would buy. The dotted line is the quasi-static asymptote `δ_max ≈ 4K²/(n·e)`, valid only for K ≪ 1. It follows from Eq. (A.52) when the compartment pressure tracks the fairing pressure. The green and red backgrounds mark the K < 0.1 and K > 1 regions.
 
 ### 4.3 Vent sizing
 
@@ -115,18 +117,18 @@ If Δp never exceeds the allowable within the window, even with almost no ventin
 
 ### 4.4 Detailed results table
 
-The table groups every quantity with its symbol and the equation number in A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026:
+The table groups every quantity with its symbol and the equation number in A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026:
 
 - **Fairing:** `tp`, `p_init`, maximum depressurization rate and the time at which it occurs.
 - **Compartment:** ρ_init, initial gas mass, a_init, n.
 - **Venting:** S, ξ and its equivalent C_D, V/S, tc, K, r_cr.
 - **Loads:** Δp_max and its time, δ_max, `p0` and `pe` at the peak, compartment temperature at the peak `T0 = T_init·ρ̄^(n−1)`, maximum crushing, sonic intervals, peak vent mass flow rate, gas mass left at the end.
-- **Comparison:** the other model's Δp_max, the quasi-static estimate, and the no-venting upper bound `p_init − pe(t_end)`.
+- **Comparison:** the other model's Δp_max, the quasi-static estimate, the numerical check with half the time steps, and the no-venting upper bound `p_init − pe(t_end)`.
 - **Structural:** design load, margin of safety, panel force.
 
 ### 4.5 Export and sharing
 
-- **Export CSV** downloads `decompression_history.csv`. A commented header lists all parameters. The columns are `t, pe, p0, Δp, r, ṁ_out, choked flag, Δp of the other model`, in SI units.
+- **Export CSV** downloads `decompression_history.csv`. A commented header lists all parameters. The columns are `t, pe, p0, Δp, ρ0, T0, r, ṁ_out, choked flag, Δp of the other model`, in SI units.
 - **Copy link** puts all inputs in the URL after the `#`. Opening that link restores the same case, which is useful for design reviews.
 - **Report** opens the browser's print dialog. Choose *Save as PDF* to archive the inputs, charts and tables.
 
@@ -134,9 +136,9 @@ The table groups every quantity with its symbol and the equation number in A. Pa
 
 ## 5. Worked example: UPM-Sat 1 (Sec. A.4.1)
 
-This is the example of Sec. A.4.1 in A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026. Click **UPM-Sat 1 · Case 1/2/3**. The presets load the data of Table A.2: V = 0.13 m³, a_init = 335 m/s, γ = 1.4, ξ = 1, tp = 75 s (Ariane 40), p_init = 100 kPa, isentropic, window 0 ≤ t ≤ 225 s.
+This is the example of Sec. A.4.1 in A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026. Click **UPM-Sat 1 · Case 1/2/3**. The presets load the data of Table A.2: V = 0.13 m³, a_init = 335 m/s, γ = 1.4, ξ = 1, tp = 75 s (Ariane 40), p_init = 100 kPa, isentropic, window 0 ≤ t ≤ 225 s.
 
-| Case | S [m²] | tc [s] (Tab. A.3) | K | Δp_max, compressible model | Δp_max, Eq. (A.52) | Sonic start (book, Tab. A.4) |
+| Case | S [m²] | tc [s] (Tab. A.3) | K | Δp_max, Pagani & Carrera | Δp_max, Sanz-Andrés et al. (A.52) | Sonic start (book, Tab. A.4) |
 |---|---|---|---|---|---|---|
 | 1 | 24×10⁻⁵ | 1.35 | 0.018 | 34 Pa at 89 s | 34 Pa | not reached (not reached) |
 | 2 | 24×10⁻⁶ | 13.53 | 0.180 | 3.29 kPa at 95 s | 2.96 kPa | 143 s (≈ 145 s) |
@@ -162,22 +164,24 @@ p/ρⁿ = const                                 (A.9)
 Δp(t) = p0(t) − pe(t)                        (A.28)
 ```
 
-**Compressible orifice flow** through an effective area `S/√ξ`:
+**Pagani & Carrera, AASS, 2016 model: compressible orifice flow** through an effective area `S/√ξ`:
 
 ```
 choked      (pe/p0 ≤ r_cr):  ṁ = S p0 √(γ/RT0) · (2/(γ+1))^((γ+1)/(2(γ−1)))                (A.22)
 subcritical (pe/p0 > r_cr):  ṁ = S p0 √(2γ/(RT0(γ−1)) · [(pe/p0)^(2/γ) − (pe/p0)^((γ+1)/γ)])  (A.24)
 ```
 
+**Sanz-Andrés et al., JSR, 1997 model: incompressible loss law.** The vent losses are written as `Δp = ½ρ0·Uh²·ξ` (Eq. A.32). The book uses it for small pressure differences (Eq. A.35), giving `ṁ = S·√(2ρ0Δp/ξ)` (Eq. A.36). This law has no sonic limit: once the vents choke it overestimates the outflow and therefore underestimates Δp (by about 20 % in UPM-Sat 1 Case 3). Note that the gas in the compartment is still compressible in this model; only the vent flow law is incompressible.
+
 **Dimensionless form** (Eqs. A.45–A.52), with `ρ̄ = ρ/ρ_init`, `p̄e = pe/p_init`, `τ = t/tc`:
 
 ```
-dρ̄/dτ = −√( ρ̄ (ρ̄ⁿ − p̄e) )      (incompressible orifice, Eq. A.52)
+dρ̄/dτ = −√( ρ̄ (ρ̄ⁿ − p̄e) )      (Sanz-Andrés et al. model, Eq. A.52)
 Δp    = p_init (ρ̄ⁿ − p̄e)
 p̄e    = exp[−(K τ)²],  K = tc/tp  (Eqs. A.53–A.56)
 ```
 
-In dimensionless form the compressible model becomes `dρ̄/dτ = −√(γ/2)·ρ̄^((n+1)/2)·ψ(p̄e/ρ̄ⁿ)`, where ψ is the orifice flow function. For small Δp it reduces exactly to Eq. (A.52). If the fairing pressure rises above the compartment pressure (reverse flow, possible with tabulated profiles), the same orifice laws apply with the fairing gas upstream.
+In dimensionless form the Pagani & Carrera model becomes `dρ̄/dτ = −√(γ/2)·ρ̄^((n+1)/2)·ψ(p̄e/ρ̄ⁿ)`, where ψ is the orifice flow function. For small Δp it reduces exactly to Eq. (A.52). If the fairing pressure rises above the compartment pressure (reverse flow, possible with tabulated profiles), the same orifice laws apply with the fairing gas upstream.
 
 **Numerics.** The single ODE is integrated with an implicit second-order BDF scheme. Each step is solved by a bracketed root search. This stays stable and accurate both for very well vented compartments (K ≪ 1), where the explicit form of the equations is stiff, and for poorly vented ones.
 
@@ -185,7 +189,7 @@ In dimensionless form the compressible model becomes `dρ̄/dτ = −√(γ/2)·
 
 ## 7. Limitations
 
-The model is intended for preliminary design and sensitivity studies (A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026, introduction). It assumes:
+The model is intended for preliminary design and sensitivity studies (A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026, introduction). It assumes:
 
 - a single compartment with uniform properties: no internal pressure waves, stratification or jets. This requires the acoustic transit time to be much shorter than `tc`;
 - rigid walls and constant volume;
@@ -197,9 +201,9 @@ The model is intended for preliminary design and sensitivity studies (A. Pagani 
 
 ## 8. References
 
-1. A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026 (`svsbook_light.pdf`).
-2. Á. Sanz-Andrés, J. Santiago-Prowald, A. Ayuso-Barea, "Spacecraft Launch Depressurization Loads", *Journal of Spacecraft and Rockets*, 34(6):805–810, 1997.
-3. A. Pagani, E. Carrera, "Gasdynamics of rapid and explosive decompressions of pressurized aircraft including active venting", *Advances in Aircraft and Spacecraft Science*, 3(1):77–93, 2016.
+1. A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026 (`svsbook_light.pdf`).
+2. A. Pagani, E. Carrera, ["Gasdynamics of rapid and explosive decompressions of pressurized aircraft including active venting"](https://alfonsopagani.github.io/svs/papers/pagani_carrera_aas_2016.pdf), *Advances in Aircraft and Spacecraft Science*, 3(1):77–93, 2016.
+3. Á. Sanz-Andrés, J. Santiago-Prowald, A. Ayuso-Barea, "Spacecraft Launch Depressurization Loads", *Journal of Spacecraft and Rockets*, 34(6):805–810, 1997.
 4. NASA SP-8060, *Compartment Venting*, NASA Space Vehicle Design Criteria (Structures), 1970.
 5. V. L. Streeter, E. B. Wylie, *Fluid Mechanics*, McGraw-Hill, 1975.
 6. ESA Launch Vehicle Catalogue (source of the `tp` values in Table A.1).
@@ -210,5 +214,9 @@ The model is intended for preliminary design and sensitivity studies (A. Pagani 
 |---|---|
 | `index.html` | The calculator: a single file with no external dependencies. |
 | `tests/verify.js` | Regression check of the embedded solver against the UPM-Sat 1 case. |
-| `svsbook_light.pdf` | The textbook: A. Pagani et al., Appunti di Strutture per Veicoli Spaziali (App. A), PoliTo, 2026, starting on page 323. |
+| `svsbook_light.pdf` | The textbook: A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026, starting on page 323. |
 | `LICENSE` | License. |
+
+---
+
+© 2026 Alfonso Pagani · Built with Claude by Anthropic · Source code on [github.com/alfonsopagani](https://github.com/alfonsopagani)
