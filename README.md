@@ -1,5 +1,7 @@
 # spcdeco — Launch Decompression Calculator
 
+**Run the tool online: [alfonsopagani.github.io/spcdeco](https://alfonsopagani.github.io/spcdeco/)**
+
 `index.html` is a self-contained interactive tool that estimates the **launch depressurization (decompression) loads** on a spacecraft compartment, equipment box or sandwich cavity inside the launcher fairing. It implements the zero-dimensional venting model of **[A. Pagani et al., Appunti di Strutture per Veicoli Spaziali, PoliTo, 2026](https://alfonsopagani.github.io/svs/)**, Appendix A. Both models treat the gas in the compartment as compressible. They differ in the vent flow law: compressible orifice flow with choking (Pagani & Carrera, 2016), or the incompressible orifice loss law for small Δp (Sanz-Andrés *et al.*, 1997).
 
 During ascent the fairing pressure `pe(t)` drops from about 1 atm to vacuum in a minute or two. If the gas trapped in a compartment cannot escape through its vents fast enough, a differential pressure `Δp(t) = p0(t) − pe(t)` builds up on the walls. The tool gives you the **peak differential pressure Δp_max**, the time at which it occurs, the venting time scales, the sonic-flow phase, a structural margin and the vent area needed to meet an allowable load.
@@ -8,8 +10,8 @@ During ascent the fairing pressure `pe(t)` drops from about 1 atm to vacuum in a
 
 ## 1. Getting started
 
-1. Download or clone the repository, or open the shared online version (see section 4.5 for its differences).
-2. Open **`index.html`** in any modern browser (Chrome, Edge, Firefox or Safari). You don't need a server, an installation or an internet connection.
+1. Open the tool online at **[https://alfonsopagani.github.io/spcdeco/](https://alfonsopagani.github.io/spcdeco/)**. Nothing to install; all features are available.
+2. Or work offline: download or clone the repository and open **`index.html`** in any modern browser (Chrome, Edge, Firefox or Safari). You don't need a server, an installation or an internet connection. Both give the same results.
 3. Pick a launcher, enter the compartment volume and the vent area. The results update as you type.
 
 To try the reference case from the [book](https://alfonsopagani.github.io/svs/), click **UPM-Sat 1 · Case 1/2/3** in the *Examples* card.
@@ -20,7 +22,7 @@ To try the reference case from the [book](https://alfonsopagani.github.io/svs/),
 
 | Area | Content |
 |---|---|
-| **Top bar** | *Copy link* (a URL that reproduces the current inputs), *Export CSV* (the full time history), *Report* (print or save as PDF), light/dark theme toggle. The online version shows *Copy CSV* instead and hides *Copy link* and *Report* (section 4.5). |
+| **Top bar** | *Copy link* (a URL that reproduces the current inputs), *Export CSV* (the full time history), *Report* (print or save as PDF), light/dark theme toggle. An embedded copy of the page may show *Copy CSV* instead and hide *Copy link* and *Report* (section 4.5). |
 | **Left column: inputs** | Five numbered sections (launcher, compartment, venting, model, structural check), plus the *Examples* card with the UPM-Sat 1 presets. The card cites the source of the case: A. Pagani et al., PoliTO, 2026; Á. Sanz-Andrés et al., JSR, 1997. |
 | **KPI row** | Δp_max (hero figure, with a unit selector: Pa, kPa, mbar, psi), venting time `tc`, time ratio `K` with a venting-regime badge, start of the sonic phase, and the design load or margin of safety. |
 | **Ascent snapshot** | A schematic of the fairing and compartment at a selected instant. The fill intensity shows the pressure, and the arrows show the vent mass flow; they turn amber and a **SONIC** tag appears when the vents are choked. The bars show `pe`, `p0`, `Δp` and the mass flow. Use **▶** to animate the ascent, or drag the slider. |
@@ -134,12 +136,14 @@ The table groups every quantity with its symbol and the equation number in [A. P
 - **Copy link** puts all inputs in the URL after the `#`. Opening that link restores the same case, which is useful for design reviews.
 - **Report** opens the browser's print dialog. Choose *Save as PDF* to archive the inputs, charts and tables.
 
-**Online (shared) version.** When the page runs inside a sandboxed web viewer, such as the shared claude.ai page, the browser does not allow downloads, printing or state in the URL. There:
+All three work both at [alfonsopagani.github.io/spcdeco](https://alfonsopagani.github.io/spcdeco/) and with `index.html` opened locally.
+
+**Embedded copies.** If the page is embedded in a sandboxed web viewer that blocks downloads, printing and state in the URL, it adapts:
 
 - **Copy CSV** replaces *Export CSV*: it copies the same CSV text to the clipboard. If the clipboard is blocked, the CSV appears in a panel above the results, already selected, ready for Ctrl/⌘+C.
-- *Report* and *Copy link* are hidden. To archive a case, open `index.html` locally.
+- *Report* and *Copy link* are hidden. To archive a case, use the online tool or open `index.html` locally.
 
-The calculations are identical in both versions.
+The calculations are identical in every version.
 
 ---
 
